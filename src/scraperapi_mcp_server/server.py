@@ -1,9 +1,10 @@
 import requests
 from mcp.server.fastmcp import FastMCP
 from scraperapi_mcp_server.model import Scrape
+from scraperapi_mcp_server.config import settings
+
 
 def basic_scrape(
-        api_key: str,
         url: str, 
         render: bool = None, 
         country_code: str = None, 
@@ -12,7 +13,7 @@ def basic_scrape(
         device_type: str = None
     ) -> str:
     payload = {
-        'api_key': api_key,
+        'api_key': settings.API_KEY,
         'url': url,
         'output_format': 'markdown'
     }
@@ -30,12 +31,14 @@ def basic_scrape(
             payload[key] = formatter(value)
 
     try:
-        response = requests.get('https://api.scraperapi.com', params=payload)
+        response = requests.get(settings.API_URL, params=payload)
         return response.text
     except Exception as e:
         return str(e)
 
+
 mcp = FastMCP("mcp-scraperapi")
+
 
 @mcp.tool()
 def scrape(params: Scrape) -> str:
@@ -49,7 +52,6 @@ def scrape(params: Scrape) -> str:
         The scraped content as a string
     """
     return basic_scrape(
-        api_key=params.api_key,
         url=str(params.url),
         render=params.render,
         country_code=params.country_code,

@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field, AnyUrl
 class Scrape(BaseModel):
     """Parameters for scraping a URL."""
 
-    api_key: Annotated[str, Field(description="Your ScraperAPI API key")]
     url: Annotated[AnyUrl, Field(description="URL to scrape")]
     render: Annotated[bool, Field(default=False, description="Whether to render the page")]
     country_code: Annotated[str, Field(default=None, description="Country code to scrape from")]

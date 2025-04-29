@@ -89,7 +89,10 @@ Add to your Claude Desktop App settings:
 "mcpServers": {
   "scrape": {
     "command": "uvx",
-    "args": ["scraperapi-mcp-server"]
+    "args": ["scraperapi-mcp-server"],
+    "env": {
+      "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+    }
   }
 }
 ```
@@ -100,7 +103,10 @@ Add to your Claude Desktop App settings:
 "mcpServers": {
   "scrape": {
     "command": "docker",
-    "args": ["run", "-i", "--rm", "scraperapi-mcp-server"]
+    "args": ["run", "-i", "--rm", "scraperapi-mcp-server"],
+    "env": {
+      "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+    }
   }
 }
 ```
@@ -110,7 +116,10 @@ Add to your Claude Desktop App settings:
 "mcpServers": {
   "scrape": {
     "command": "python",
-    "args": ["-m", "scraperapi_mcp_server"]
+    "args": ["-m", "scraperapi_mcp_server"],
+    "env": {
+      "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+    }
   }
 }
 ```
@@ -131,7 +140,10 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
     "servers": {
       "scrape": {
         "command": "uvx",
-        "args": ["scraperapi_mcp_server"]
+        "args": ["scraperapi_mcp_server"],
+        "env": {
+          "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+        }
       }
     }
   }
@@ -145,7 +157,10 @@ Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace
     "servers": {
       "scrape": {
         "command": "docker",
-        "args": ["run", "-i", "--rm", "scraperapi-mcp-server"]
+        "args": ["run", "-i", "--rm", "scraperapi-mcp-server"],
+        "env": {
+          "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+        }
       }
     }
   }
