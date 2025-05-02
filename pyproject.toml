@@ -1,0 +1,28 @@
+[project]
+name = "scraperapi-mcp-server"
+version = "0.1.0"
+description = "ScraperAPI MCP server"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "ScraperAPI" }]
+keywords = ["http", "mcp", "llm", "automation", "scraping"]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+    "mcp[cli]>=1.6.0",
+    "pydantic>=2.11.3",
+    "pydantic-settings>=2.9.1",
+    "requests>=2.32.3",
+]
+
+[project.scripts]
+scraperapi-mcp-server = "scraperapi_mcp_server:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
