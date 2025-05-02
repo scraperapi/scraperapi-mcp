@@ -15,7 +15,7 @@ The ScraperAPI MCP server enables LLMs to retrieve and process web scraping requ
 
 - Full implementation of the Model Context Protocol specification
 - Seamless integration with ScraperAPI for web scraping
-- Simple setup with Python
+- Simple setup with Docker or Python
 
 ## Architecture
 
@@ -34,45 +34,56 @@ The ScraperAPI MCP server enables LLMs to retrieve and process web scraping requ
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.11+ or Docker
 
-### Setup:
-
-1. Clone the repository
+### Clone the repository:
   ```bash
   git clone https://github.com/scraperapi/scraperapi-mcp
   cd scraperapi-mcp
   ```
 
-2. Install and run
-  - With `uv` (recommended)
-    ```bash
-    # Create virtual environment and activate it
-    uv venv
+### Using Python
 
-    source .venv/bin/activate # MacOS/Linux
-    # OR
-    .venv/Scripts/activate # Windows
+- With `uv` (recommended)
+  ```bash
+  # Create virtual environment and activate it
+  uv venv
 
-    # Install dependencies 
-    uv sync
+  source .venv/bin/activate # MacOS/Linux
+  # OR
+  .venv/Scripts/activate # Windows
 
-    uvx scraperapi-mcp-server
-    ```
+  # Install dependencies 
+  uv sync
 
-  - With `pip`
-    ```bash
-    # Create virtual environment and activate it
-    python -m venv myenv
+  uvx scraperapi-mcp-server
+  ```
 
-    source .venv/bin/activate # MacOS/Linux
-    # OR
-    .venv/Scripts/activate # Windows
+- With `pip`
+  ```bash
+  # Create virtual environment and activate it
+  python -m venv myenv
 
-    pip install scraperapi_mcp_server
+  source .venv/bin/activate # MacOS/Linux
+  # OR
+  .venv/Scripts/activate # Windows
 
-    python -m scraperapi_mcp_server
-    ```
+  pip install scraperapi_mcp_server
+
+  python -m scraperapi_mcp_server
+  ```
+
+### Using Docker
+
+You can build and run the MCP server using Docker:
+
+```bash
+# Build the Docker image
+docker build -t scraperapi-mcp-server .
+
+# Run the Docker container with environment variable
+docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
+```
 
 ## API Reference
 
@@ -123,7 +134,6 @@ Here are some example queries demonstrating different use cases:
 4. Select the "Developer" tab
 5. Click on "Edit Config" and paste [the JSON configuration file](#json-configuration-file).
 
-
 ### Configure for Cursor AI
 
 **Project Configuration**
@@ -171,7 +181,31 @@ For tools that you want to use across all projects, create a `\~/.cursor/mcp.jso
 
 </details>
 
-Note: if you don't know what `<YOUR_COMMAND_PATH>` is, you can type `which <YOUR_COMMAND>` on a terminal to find out.
+<details>
+<summary>Using docker</summary>
+
+```json
+{
+  "mcpServers": {
+    "scrape": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "-e",
+        "API_KEY=${API_KEY}",
+        "--rm",
+        "scraperapi-mcp-server"],
+      "env": {
+        "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+      }
+    }
+  }
+}
+```
+</details>
+
+> If you don't know what `<YOUR_COMMAND_PATH>` is, you can type `which <YOUR_COMMAND>` on a terminal to find out.
 
 ## Development
 
