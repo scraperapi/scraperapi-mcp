@@ -5,9 +5,11 @@ from mcp.types import (
     ErrorData,
     INTERNAL_ERROR,
 )
-from scraperapi_mcp_server.model import Scrape
-from scraperapi_mcp_server.country_codes import COUNTRY_CODES
-from scraperapi_mcp_server.scrape import basic_scrape
+from scraperapi_mcp_server.scraping.models import Scrape
+from scraperapi_mcp_server.scraping.scrape import basic_scrape
+from scraperapi_mcp_server.utils.country_codes import COUNTRY_CODES
+from scraperapi_mcp_server.sdes.models import ScrapeAmazonProductParams, ScrapeAmazonSearchParams, ScrapeAmazonOffersParams
+from scraperapi_mcp_server.sdes import amazon
 
 
 mcp = FastMCP("mcp-scraperapi")
@@ -21,8 +23,7 @@ def scrape(params: Scrape) -> str:
     Args:
         params: A Scrape model instance containing all scraping parameters
             - url: The URL to scrape (required)
-            - render: Set to True ONLY if the page requires JavaScript to load content. 
-                      Default is False, which is sufficient for most static websites.
+            - render: Set to True ONLY if the page requires JavaScript to load content. Default is False, which is sufficient for most static websites.
             - country_code: Two-letter country code to scrape from (optional)
             - premium: Whether to use premium proxies (optional)
             - ultra_premium: Whether to use ultra premium proxies (optional)
@@ -96,3 +97,77 @@ def scrape_prompt(params: str) -> str:
             break
     
     return scrape(scrape_params)
+
+
+# SDEs
+
+
+# Amazon
+@mcp.tool()
+def scrape_amazon_product(params: ScrapeAmazonProductParams) -> str:
+    """
+    Scrape a product from Amazon.
+
+    Args:
+        params:
+            - asin: The ASIN of the product to scrape
+            - tld: The top-level domain to scrape
+            - country: The country to scrape
+            - output_format: The output format to scrape, we offer 'csv' and 'json' output. JSON is default if parameter is not added
+    """
+    return amazon.scrape_amazon_product(
+        asin=params.asin,
+        tld=params.tld,
+        country=params.country,
+        output_format=params.output_format,
+    )
+
+
+@mcp.tool()
+def scrape_amazon_search(params: ScrapeAmazonSearchParams) -> str:
+    """
+    Scrape a search from Amazon.
+
+    Args:
+        params:
+            - query: The query to scrape
+            - tld: The top-level domain to scrape
+            - country: The country to scrape
+            - output_format: The output format to scrape, we offer 'csv' and 'json' output. JSON is default if parameter is not added
+    """
+    return amazon.scrape_amazon_search(
+        query=params.query,
+        tld=params.tld,
+        country=params.country,
+        output_format=params.output_format
+    )
+
+
+@mcp.tool()
+def scrape_amazon_offers(params: ScrapeAmazonOffersParams) -> str:
+    """
+    Scrape offers from Amazon.
+
+    Args:
+        params:
+            - asin: The ASIN of the product to scrape
+            - tld: The top-level domain to scrape
+            - country: The country to scrape
+            - output_format: The output format to scrape, we offer 'csv' and 'json' output. JSON is default if parameter is not added
+            - f_new: Whether to scrape new offers
+            - f_used_good: Whether to scrape used good offers
+            - f_used_like_new: Whether to scrape used like new offers
+            - f_used_very_good: Whether to scrape used very good offers
+            - f_used_acceptable: Whether to scrape used acceptable offers
+    """
+    return amazon.scrape_amazon_offers(
+        asin=params.asin,
+        tld=params.tld,
+        country=params.country,
+        output_format=params.output_format,
+        f_new=params.f_new,
+        f_used_good=params.f_used_good,
+        f_used_like_new=params.f_used_like_new,
+        f_used_very_good=params.f_used_very_good,
+        f_used_acceptable=params.f_used_acceptable
+    )

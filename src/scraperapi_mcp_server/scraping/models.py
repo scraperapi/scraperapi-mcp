@@ -1,6 +1,7 @@
 from typing import Annotated
 from pydantic import BaseModel, Field, AnyUrl
 
+
 class Scrape(BaseModel):
     """Parameters for scraping a URL."""
 
