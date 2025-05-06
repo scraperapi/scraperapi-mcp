@@ -5,9 +5,9 @@ from mcp.types import (
     ErrorData,
     INTERNAL_ERROR,
 )
-from scraperapi_mcp_server.model import Scrape
-from scraperapi_mcp_server.country_codes import COUNTRY_CODES
-from scraperapi_mcp_server.scrape import basic_scrape
+from scraperapi_mcp_server.scraping.models import Scrape
+from scraperapi_mcp_server.utils.country_codes import COUNTRY_CODES
+from scraperapi_mcp_server.scraping.scrape import basic_scrape
 
 
 mcp = FastMCP("mcp-scraperapi")
@@ -20,12 +20,14 @@ def scrape(params: Scrape) -> str:
     
     Args:
         params: A Scrape model instance containing all scraping parameters
-            - url: The URL to scrape (required)
-            - render: Set to True ONLY if the page requires JavaScript to load content. 
-                      Default is False, which is sufficient for most static websites.
-            - country_code: Two-letter country code to scrape from (optional)
-            - premium: Whether to use premium proxies (optional)
-            - ultra_premium: Whether to use ultra premium proxies (optional)
+            - url: The URL to scrape. (required)
+            - render: Set to True ONLY if the content you need is missing from the initial HTML response and is loaded dynamically by JavaScript. 
+                        For most websites, including many modern ones, the main content is available without JavaScript rendering.
+                        **Do not enable unless you have confirmed that the required data is not present in the HTML or accessible via API calls.**
+                        Using render=True is slower, more expensive, and may not be necessary even for sites built with JavaScript frameworks. (optional)
+            - country_code: Two-letter country code to scrape from. (optional)
+            - premium: Whether to use premium residential proxies and mobile IPs (optional)
+            - ultra_premium: Whether to activate advanced bypass mechanisms. Cannot combine with premium (optional)
             - device_type: Set to 'mobile' or 'desktop' to use specific user agents (optional)
         
     Returns:
@@ -47,11 +49,12 @@ def scrape_prompt(params: str) -> str:
     Scrape a URL using ScraperAPI based on natural language instructions.
     
     Args:
-        params: A natural language string describing what to scrape and how.
-                Example: "Scrape https://example.com with JavaScript rendering enabled from a mobile device in the US"
-                
-                To enable JavaScript rendering, explicitly mention "javascript rendering" or "render javascript".
-                By default, JavaScript rendering is OFF for better performance and lower costs.
+        params: A natural language string describing what to scrape or fetch and how.
+            Example: "Scrape https://example.com with JavaScript rendering enabled from a mobile device in the US"
+            
+            **JavaScript rendering (render=True) should only be enabled if you have confirmed that the required content is NOT present in the initial HTML or via API calls.**
+            Many modern websites, including those built with JavaScript frameworks, still expose their main content in the HTML or via XHR/API endpoints.
+            Enabling JavaScript rendering is slower, more expensive, and should be a last resort.
         
     Returns:
         The scraped content as a string
