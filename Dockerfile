@@ -32,8 +32,7 @@ COPY --from=uv --chown=app:app /app/.venv /app/.venv
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Copy the environment variables 
-ENV API_KEY=${API_KEY}
+# The API_KEY will be provided at runtime with docker run -e
 
 # when running the container, add --db-path and a bind mount to the host's db file
 ENTRYPOINT ["scraperapi-mcp-server"]

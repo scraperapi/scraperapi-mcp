@@ -124,7 +124,6 @@ Here are some example queries demonstrating different use cases:
 ### Settings
 
 - `API_KEY`: Your ScraperAPI API key.
-- `API_TIMEOUT_SECONDS`: By default is set to 70 seconds. This is because the API may retry failed requests for up to 70 seconds before returning a 500 error. Setting your timeout to 70 seconds ensures that your request has enough time for all retries to be attempted before timing out.
 
 ### Configure for Claude Desktop App
 
@@ -133,17 +132,6 @@ Here are some example queries demonstrating different use cases:
 3. Click on the settings icon (typically a gear or three dots in the upper right corner)
 4. Select the "Developer" tab
 5. Click on "Edit Config" and paste [the JSON configuration file](#json-configuration-file).
-
-### Configure for Cursor AI
-
-**Project Configuration**
-
-For tools specific to a project, create a `.cursor/mcp.json` file in your project directory. This allows you to define MCP servers that are only available within that specific project.
-
-**Global Configuration**
-
-For tools that you want to use across all projects, create a `\~/.cursor/mcp.json` file in your home directory. This makes MCP servers available in all your Cursor workspaces.
-
 
 ### JSON configuration file.
 
@@ -188,7 +176,7 @@ For tools that you want to use across all projects, create a `\~/.cursor/mcp.jso
 {
   "mcpServers": {
     "scrape": {
-      "command": "docker",
+      "command": "<YOUR_COMMAND_PATH>/docker",
       "args": [
         "run",
         "-i",
