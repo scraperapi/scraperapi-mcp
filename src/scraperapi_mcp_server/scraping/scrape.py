@@ -18,7 +18,8 @@ def basic_scrape(
     payload = {
         'api_key': settings.API_KEY,
         'url': url,
-        'output_format': 'markdown'
+        'output_format': 'markdown',
+        'scraper_sdk': 'mcp-server'
     }
 
     optional_params = {
