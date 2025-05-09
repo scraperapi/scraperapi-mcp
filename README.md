@@ -89,7 +89,8 @@ docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
 
 ### Available Tools
 
-- `scrape` - Scrape a URL from the internet using ScraperAPI
+- `scrape`
+  - Scrape a URL from the internet using ScraperAPI
   - Parameters:
     - `api_key` (string, required): your API key
     - `url` (string, required): URL to scrape
@@ -98,18 +99,16 @@ docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
     - `premium` (boolean, optional): Activate premium residential and mobile IPs
     - `ultra_premium` (boolean, optional): Activate advanced bypass mechanisms. Can not combine with `premium`
     - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
+  - Returns: The scraped content as a string
 
-### Prompts
-
-- **scrape**
-  - Scrapes a URL from the internet using ScraperAPI
-  - Supports natural language instructions to configure:
+- `scrape_assisted`
+  - Scrape a URL using ScraperAPI with smart scraping logic
+  - **Note: This tool can lead to increased costs** as it may use premium features to ensure successful scraping
+  - Parameters:
     - `url` (string, required): URL to scrape
-    - `render` (boolean, optional): Enable JavaScript rendering by mentioning "javascript" or "render"
-    - `device_type` (string, optional): Set to "mobile" or "desktop" by mentioning the device type
-    - `premium` (boolean, optional): Enable premium scraping by mentioning "premium"
-    - `ultra_premium` (boolean, optional): Enable ultra premium scraping by mentioning "ultra premium"
-    - `country_code` (string, optional): Specify a country by name to scrape from that location
+    - `device_type` (string, optional): Set to "mobile" or "desktop" to use specific user agents
+    - `country_code` (string, optional): Two-letter country code to scrape from
+  - Returns: The scraped content as a string
 
 ### Example Queries
 
@@ -118,6 +117,7 @@ Here are some example queries demonstrating different use cases:
 - Scrape https://example.com
 - Scrape https://example.com from Germany
 - Could you scrape https://example.com with JavaScript rendering from a mobile device in France using premium scraping?
+- Use the smart scraping logic to scrape https://example.com as it's a complex website with anti-bot measures
 
 ## Configuration
 
@@ -140,7 +140,7 @@ Here are some example queries demonstrating different use cases:
 
 ```json
 "mcpServers": {
-  "scrape": {
+  "ScraperAPI": {
     "command": "<YOUR_COMMAND_PATH>/uvx",
     "args": ["scraperapi-mcp-server"],
     "env": {
@@ -157,7 +157,7 @@ Here are some example queries demonstrating different use cases:
 
 ```json
 "mcpServers": {
-  "scrape": {
+  "ScraperAPI": {
     "command": "<YOUR_COMMAND_PATH>/python",
     "args": ["-m", "scraperapi_mcp_server"],
     "env": {
@@ -175,7 +175,7 @@ Here are some example queries demonstrating different use cases:
 ```json
 {
   "mcpServers": {
-    "scrape": {
+    "ScraperAPI": {
       "command": "<YOUR_COMMAND_PATH>/docker",
       "args": [
         "run",
