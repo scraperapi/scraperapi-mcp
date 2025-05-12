@@ -1,8 +1,11 @@
 import requests
 from requests.exceptions import RequestException, HTTPError as RequestsHTTPError
-from mcp.shared.exceptions import McpError
 from scraperapi_mcp_server.config import settings
-from mcp.types import ErrorData, INTERNAL_ERROR
+from scraperapi_mcp_server.utils.exceptions import (
+    handle_scraper_http_error,
+    handle_scraper_connection_error,
+    handle_scraper_generic_error,
+)
 
 
 def basic_scrape(
@@ -40,25 +43,8 @@ def basic_scrape(
 
         return response.text
     except RequestsHTTPError as e:
-        status_code = e.response.status_code if hasattr(e, "response") else 500
-        error_message = f"HTTP error {status_code} when scraping '{url}': {str(e)}"
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR,
-                message=error_message,
-            )
-        )
+        raise handle_scraper_http_error(e, url, payload)
     except RequestException as e:
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR,
-                message=f"Connection error when scraping '{url}': {str(e)}",
-            )
-        )
+        raise handle_scraper_connection_error(e, url)
     except Exception as e:
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR,
-                message=f"Unexpected error when scraping '{url}': {str(e)}",
-            )
-        )
+        raise handle_scraper_generic_error(e, url)

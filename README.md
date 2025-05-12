@@ -101,9 +101,12 @@ docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
     - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
   - Returns: The scraped content as a string
 
+> [!NOTE]
+> `scrape_assisted` tool **can lead to increased costs** as it may use premium features to ensure successful scraping
+
 - `scrape_assisted`
-  - Scrape a URL using ScraperAPI with smart scraping logic
-  - **Note: This tool can lead to increased costs** as it may use premium features to ensure successful scraping
+  - Scrape a URL using ScraperAPI with automated parameter selection based on historical usage data
+  
   - Parameters:
     - `url` (string, required): URL to scrape
     - `device_type` (string, optional): Set to "mobile" or "desktop" to use specific user agents

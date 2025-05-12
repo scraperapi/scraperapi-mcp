@@ -41,18 +41,17 @@ def scrape(params: Scrape) -> str:
 
 @mcp.tool()
 def scrape_assisted(params: Scrape) -> str:
-    f"""
-    {SCRAPE_ASSISTED}
-    Interactive scraping assistant that guides users through ScraperAPI parameter selection.
-
-    This tool walks users through each parameter choice, explaining options and tradeoffs
-    while providing feedback on selections. Designed for new users or complex scraping tasks.
+    """
+    Execute a web scrape using ScraperAPI with minimal parameter setup automatically optimizing the remaining based on historical success data for similar websites.
+    This is ideal for users who want the best scraping results without manually configuring all options.
 
     Parameters:
-        params: Initial Scrape model with:
-            url: Target URL to scrape (required)
-            country_code: Optional two-letter country code
-            device_type: Optional 'mobile' or 'desktop' setting
+        url: Target URL to scrape (required)
+        render: Enable JavaScript rendering only when needed for dynamic content (default: False)
+                Set to True ONLY if the content you need is missing from the initial HTML response and is loaded dynamically by JavaScript.
+                For most websites, including many modern ones, the main content is available without JavaScript rendering.
+        country_code: Optional two-letter country code
+        device_type: Optional 'mobile' or 'desktop' setting
 
     Returns:
         Scraped content as a string after interactive parameter selection
@@ -60,6 +59,7 @@ def scrape_assisted(params: Scrape) -> str:
 
     return smart_scrape(
         url=str(params.url),
+        render=params.render,
         device_type=params.device_type,
         country_code=params.country_code,
     )
