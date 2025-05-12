@@ -1,11 +1,6 @@
 import requests
-from requests.exceptions import RequestException, HTTPError as RequestsHTTPError
 from scraperapi_mcp_server.config import settings
-from scraperapi_mcp_server.utils.exceptions import (
-    handle_scraper_http_error,
-    handle_scraper_connection_error,
-    handle_scraper_generic_error,
-)
+from scraperapi_mcp_server.utils.exceptions import handle_scraper_error
 
 
 def basic_scrape(
@@ -42,9 +37,6 @@ def basic_scrape(
         response.raise_for_status()
 
         return response.text
-    except RequestsHTTPError as e:
-        raise handle_scraper_http_error(e, url, payload)
-    except RequestException as e:
-        raise handle_scraper_connection_error(e, url)
     except Exception as e:
-        raise handle_scraper_generic_error(e, url)
+        error_obj = handle_scraper_error(e, url, payload)
+        raise Exception(error_obj.error.message)

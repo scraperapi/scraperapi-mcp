@@ -1,10 +1,8 @@
 # src/scraperapi_mcp_server/scraping/smart_scrape.py
-from mcp.shared.exceptions import McpError
 from scraperapi_mcp_server.scraping.basic_scrape import basic_scrape
 from scraperapi_mcp_server.utils.domain_based_suggestions import (
     apply_domain_suggestions,
 )
-from scraperapi_mcp_server.utils.exceptions import handle_scraper_generic_error
 
 
 def smart_scrape(
@@ -36,22 +34,11 @@ def smart_scrape(
         },
     )
 
-    try:
-        result = basic_scrape(
-            url=url,
-            render=domain_params["render"],
-            country_code=domain_params["country_code"],
-            premium=domain_params["premium"],
-            ultra_premium=domain_params["ultra_premium"],
-            device_type=domain_params["device_type"],
-        )
-
-        if not result or not result.strip():
-            raise Exception("Received empty response from ScraperAPI")
-
-        return result
-
-    except McpError:
-        raise
-    except Exception as e:
-        raise handle_scraper_generic_error(e, url)
+    return basic_scrape(
+        url=url,
+        render=domain_params["render"],
+        country_code=domain_params["country_code"],
+        premium=domain_params["premium"],
+        ultra_premium=domain_params["ultra_premium"],
+        device_type=domain_params["device_type"],
+    )
