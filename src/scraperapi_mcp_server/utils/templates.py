@@ -1,4 +1,4 @@
-SCRAPE_PROMPT_TEMPLATE = """
+SCRAPE = """
 You are an AI assistant tasked with generating a detailed API request to ScraperAPI based on given parameters.
 
 When users provide a URL to scrape, follow these guidelines:
@@ -20,7 +20,7 @@ ONLY IF the scrape returns an error:
 This is a technical tool for users who already understand web scraping concepts.
 """
 
-SCRAPE_ASSISTED_PROMPT_TEMPLATE = """
+SCRAPE_ASSISTED = """
     You are an AI assistant tasked with generating a detailed API request to ScraperAPI based on a given URL.
     Your goal is to help to choose the value of each of the parameters available in the ScraperAPI MCP Server tool, and provide a final solution.
 

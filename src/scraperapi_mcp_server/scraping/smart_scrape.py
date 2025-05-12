@@ -1,10 +1,8 @@
 # src/scraperapi_mcp_server/scraping/smart_scrape.py
-from typing import Any, Dict
 from mcp.shared.exceptions import McpError
 from mcp.types import ErrorData, INTERNAL_ERROR
 from scraperapi_mcp_server.scraping.basic_scrape import basic_scrape
 from scraperapi_mcp_server.utils.domain_based_suggestions import (
-    get_domain_based_suggestions,
     apply_domain_suggestions,
 )
 
@@ -52,23 +50,22 @@ def smart_scrape(url: str, device_type: str = None, country_code: str = None) ->
             return result
     except McpError as e:
         first_attempt_error = e
+        try:
+            # If first attempt fails, retry with render=True but keep other parameters
+            domain_params["render"] = True
 
-    try:
-        # If first attempt fails, retry with render=True but keep other parameters
-        domain_params["render"] = True
-
-        return basic_scrape(
-            url=url,
-            render=domain_params["render"],
-            country_code=domain_params["country_code"],
-            premium=domain_params["premium"],
-            ultra_premium=domain_params["ultra_premium"],
-            device_type=domain_params["device_type"],
-        )
-    except McpError as e:
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR,
-                message=f"Failed to scrape '{url}' with both render=False and render=True: {str(e)}",
+            return basic_scrape(
+                url=url,
+                render=domain_params["render"],
+                country_code=domain_params["country_code"],
+                premium=domain_params["premium"],
+                ultra_premium=domain_params["ultra_premium"],
+                device_type=domain_params["device_type"],
             )
-        )
+        except McpError as e:
+            raise McpError(
+                ErrorData(
+                    code=INTERNAL_ERROR,
+                    message=f"Failed to scrape '{url}' with both render=False and render=True: \n Without rendering: { str(first_attempt_error)} \n With rendering: {str(e)}",
+                )
+            )
