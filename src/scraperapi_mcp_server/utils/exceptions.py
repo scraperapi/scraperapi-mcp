@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any
 from requests.exceptions import RequestException, HTTPError as RequestsHTTPError
 from mcp.shared.exceptions import McpError
 from mcp.types import ErrorData, INTERNAL_ERROR
@@ -87,36 +87,6 @@ def handle_scraper_generic_error(e: Exception, url: str) -> McpError:
         An McpError with error information
     """
     error_message = f"Unexpected error when scraping '{url}': {str(e)}"
-
-    return McpError(
-        ErrorData(
-            code=INTERNAL_ERROR,
-            message=error_message,
-        )
-    )
-
-
-def format_multiple_scrape_errors(
-    url: str, errors: List[str], suggestion: Optional[str] = None
-) -> McpError:
-    """
-    Format a comprehensive error message for multiple failed scrape attempts.
-
-    Args:
-        url: The URL that was being scraped
-        errors: List of error messages from each failed attempt
-        suggestion: Optional suggestion to provide to the user
-
-    Returns:
-        An McpError with comprehensive error information
-    """
-    error_message = f"Failed to scrape '{url}' after multiple attempts:\n"
-    error_message += "\n".join(errors)
-
-    if suggestion:
-        error_message += f"\n\n{suggestion}"
-    else:
-        error_message += "\n\nTry manually adjusting parameters such as render, premium, or country_code."
 
     return McpError(
         ErrorData(
