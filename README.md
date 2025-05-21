@@ -32,58 +32,45 @@ The ScraperAPI MCP server enables LLMs to retrieve and process web scraping requ
 
 ## Installation
 
+The ScraperAPI MCP Server is designed to run as a local server on your machine.
+
 ### Prerequisites
-
 - Python 3.11+ or Docker
+- `pip` package manager
 
-### Clone the repository:
-  ```bash
-  git clone https://github.com/scraperapi/scraperapi-mcp
-  cd scraperapi-mcp
-  ```
+### Local Development/Setup
 
-### Using Python
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/scraperapi/scraperapi-mcp
+   cd scraperapi-mcp
+   ```
 
-- With `uv` (recommended)
-  ```bash
-  # Create virtual environment and activate it
-  uv venv
+2. **Install dependencies and run the package locally:**
+   - **Using Python:**
+     ```bash
+     # Create virtual environment and activate it
+     python -m venv .venv
+     source .venv/bin/activate # MacOS/Linux
+     # OR
+     .venv/Scripts/activate # Windows
 
-  source .venv/bin/activate # MacOS/Linux
-  # OR
-  .venv/Scripts/activate # Windows
+     # Install the local package in editable mode
+     pip install -e .
 
-  # Install dependencies 
-  uv sync
+     # Connect to a supported agent (see the Configuration section) OR
+     # Run the server
+     python -m scraperapi_mcp_server
+     ```
 
-  uvx scraperapi-mcp-server
-  ```
+   - **Using Docker:**
+     ```bash
+     # Build the Docker image locally
+     docker build -t scraperapi-mcp-server .
 
-- With `pip`
-  ```bash
-  # Create virtual environment and activate it
-  python -m venv myenv
-
-  source .venv/bin/activate # MacOS/Linux
-  # OR
-  .venv/Scripts/activate # Windows
-
-  pip install scraperapi_mcp_server
-
-  python -m scraperapi_mcp_server
-  ```
-
-### Using Docker
-
-You can build and run the MCP server using Docker:
-
-```bash
-# Build the Docker image
-docker build -t scraperapi-mcp-server .
-
-# Run the Docker container with environment variable
-docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
-```
+     # Run the Docker container with your API key
+     docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
+     ```
 
 ## API Reference
 
@@ -139,23 +126,6 @@ Here are some example queries demonstrating different use cases:
 ### JSON configuration file.
 
 <details>
-<summary>Using uvx</summary>
-
-```json
-"mcpServers": {
-  "ScraperAPI": {
-    "command": "<YOUR_COMMAND_PATH>/uvx",
-    "args": ["scraperapi-mcp-server"],
-    "env": {
-      "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
-    }
-  }
-}
-```
-
-</details>
-
-<details>
 <summary>Using pip installation</summary>
 
 ```json
@@ -186,17 +156,24 @@ Here are some example queries demonstrating different use cases:
         "-e",
         "API_KEY=${API_KEY}",
         "--rm",
-        "scraperapi-mcp-server"],
-      "env": {
-        "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
-      }
+        "scraperapi-mcp-server"]
     }
   }
 }
 ```
 </details>
 
-> If you don't know what `<YOUR_COMMAND_PATH>` is, you can type `which <YOUR_COMMAND>` on a terminal to find out.
+</br>
+
+> [!TIP]
+>
+> When specifying `<YOUR_COMMAND_PATH>`, you must use the path to the command inside your virtual environment. 
+>
+> To find the correct path activate your virtual environment first then run:
+>    ```bash
+>    which <YOUR_COMMAND>
+>    ```
+> Using the wrong path is a common cause of "package not found" errors when agents try to start the server.
 
 ## Development
 
