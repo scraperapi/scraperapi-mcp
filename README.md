@@ -35,42 +35,57 @@ The ScraperAPI MCP server enables LLMs to retrieve and process web scraping requ
 The ScraperAPI MCP Server is designed to run as a local server on your machine.
 
 ### Prerequisites
-- Python 3.11+ or Docker
-- `pip` package manager
+- Python 3.11+
+- Docker (optional)
 
-### Local Development/Setup
+### Using Python
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/scraperapi/scraperapi-mcp
-   cd scraperapi-mcp
-   ```
+Add this to your client configuration file:
 
-2. **Install dependencies and run the package locally:**
-   - **Using Python:**
-     ```bash
-     # Create virtual environment and activate it
-     python -m venv .venv
-     source .venv/bin/activate # MacOS/Linux
-     # OR
-     .venv/Scripts/activate # Windows
+```json
+"mcpServers": {
+  "ScraperAPI": {
+    "command": "<YOUR_COMMAND_PATH>/python",
+    "args": ["-m", "scraperapi_mcp_server"],
+    "env": {
+      "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
+    }
+  }
+}
+```
 
-     # Install the local package in editable mode
-     pip install -e .
+### Using Docker 
 
-     # Connect to a supported agent (see the Configuration section) OR
-     # Run the server
-     python -m scraperapi_mcp_server
-     ```
+Add this to your client configuration file:
 
-   - **Using Docker:**
-     ```bash
-     # Build the Docker image locally
-     docker build -t scraperapi-mcp-server .
+```json
+{
+  "mcpServers": {
+    "ScraperAPI": {
+      "command": "<YOUR_COMMAND_PATH>/docker",
+      "args": [
+        "run",
+        "-i",
+        "-e",
+        "API_KEY=${API_KEY}",
+        "--rm",
+        "scraperapi-mcp-server"]
+    }
+  }
+}
+```
 
-     # Run the Docker container with your API key
-     docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
-     ```
+</br>
+
+> [!TIP]
+>
+> When specifying `<YOUR_COMMAND_PATH>`, you must use the path to the command inside your virtual environment. 
+>
+> To find the correct path activate your virtual environment first then run:
+>    ```bash
+>    which <YOUR_COMMAND>
+>    ```
+> Using the wrong path is a common cause of "package not found" errors when clients try to start the server.
 
 ## API Reference
 
@@ -121,63 +136,53 @@ Here are some example queries demonstrating different use cases:
 2. Access the Settings Menu
 3. Click on the settings icon (typically a gear or three dots in the upper right corner)
 4. Select the "Developer" tab
-5. Click on "Edit Config" and paste [the JSON configuration file](#json-configuration-file).
-
-### JSON configuration file.
-
-<details>
-<summary>Using pip installation</summary>
-
-```json
-"mcpServers": {
-  "ScraperAPI": {
-    "command": "<YOUR_COMMAND_PATH>/python",
-    "args": ["-m", "scraperapi_mcp_server"],
-    "env": {
-      "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Using docker</summary>
-
-```json
-{
-  "mcpServers": {
-    "ScraperAPI": {
-      "command": "<YOUR_COMMAND_PATH>/docker",
-      "args": [
-        "run",
-        "-i",
-        "-e",
-        "API_KEY=${API_KEY}",
-        "--rm",
-        "scraperapi-mcp-server"]
-    }
-  }
-}
-```
-</details>
-
-</br>
-
-> [!TIP]
->
-> When specifying `<YOUR_COMMAND_PATH>`, you must use the path to the command inside your virtual environment. 
->
-> To find the correct path activate your virtual environment first then run:
->    ```bash
->    which <YOUR_COMMAND>
->    ```
-> Using the wrong path is a common cause of "package not found" errors when agents try to start the server.
+5. Click on "Edit Config" and paste [the JSON configuration file](#installation).
 
 ## Development
 
-### Local Development
+### Local setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/scraperapi/scraperapi-mcp
+   cd scraperapi-mcp
+   ```
+
+2. **Install dependencies and run the package locally:**
+   - **Using Python:**
+     ```bash
+     # Create virtual environment and activate it
+     python -m venv .venv
+     source .venv/bin/activate # MacOS/Linux
+     # OR
+     .venv/Scripts/activate # Windows
+
+     # Install the local package in editable mode
+     pip install -e .
+     ```
+
+   - **Using Docker:**
+     ```bash
+     # Build the Docker image locally
+     docker build -t scraperapi-mcp-server .
+     ```
+
+### Connect to a supported client
+
+
+### Run the server
+   - **Using Python:**
+     ```bash
+     python -m scraperapi_mcp_server
+     ```
+
+   - **Using Docker:**
+     ```bash
+     # Run the Docker container with your API key
+     docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
+     ```
+
+### Debug
 
 ```bash
 python3 -m scraperapi_mcp_server --debug
