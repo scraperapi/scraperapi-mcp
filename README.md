@@ -104,14 +104,10 @@ Add this to your client configuration file:
     - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
   - Returns: The scraped content as a string
 
-### Example Queries
+### Prompt templates
 
-Here are some example queries demonstrating different use cases:
-
-- Scrape https://example.com
-- Scrape https://example.com from Germany
-- Could you scrape https://example.com with JavaScript rendering from a mobile device in France using premium scraping?
-- Use the smart scraping logic to scrape https://example.com as it's a complex website with anti-bot measures
+- Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.
+- Can you scrape URL `<URL>` to extract `<SPECIFIC_DATA>`? If the request returns missing/incomplete`<SPECIFIC_DATA>`, set render=true to enable JS Rendering.
 
 ## Configuration
 
