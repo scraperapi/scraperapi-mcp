@@ -32,7 +32,7 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
 
 ## Installation
 
-The ScraperAPI MCP Server is designed to run as a local server on your machine.
+The ScraperAPI MCP Server is designed to run as a local server on your machine, your LLM client will launch it automatically when configured.
 
 ### Prerequisites
 - Python 3.11+
@@ -46,7 +46,7 @@ Add this to your client configuration file:
 {
   "mcpServers": {
     "ScraperAPI": {
-      "command": "<YOUR_COMMAND_PATH>/python",
+      "command": "python",
       "args": ["-m", "scraperapi_mcp_server"],
       "env": {
         "API_KEY": "<YOUR_SCRAPERAPI_API_KEY>"
@@ -64,7 +64,7 @@ Add this to your client configuration file:
 {
   "mcpServers": {
     "ScraperAPI": {
-      "command": "<YOUR_COMMAND_PATH>/docker",
+      "command": "docker",
       "args": [
         "run",
         "-i",
@@ -81,13 +81,10 @@ Add this to your client configuration file:
 
 > [!TIP]
 >
-> When specifying `<YOUR_COMMAND_PATH>`, you must use the path to the command inside your virtual environment. 
->
-> To find the correct path activate your virtual environment first then run:
+> If your command is not working (for example, you see a `package not found` error when trying to start the server), double-check the path you are using. To find the correct path, activate your virtual environment first, then run:
 >    ```bash
 >    which <YOUR_COMMAND>
 >    ```
-> Using the wrong path is a common cause of `package not found` errors when clients try to start the server.
 
 ## API Reference
 
