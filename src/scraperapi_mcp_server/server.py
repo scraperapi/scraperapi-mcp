@@ -1,6 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 from scraperapi_mcp_server.scrape.models import Scrape
 from scraperapi_mcp_server.scrape.scrape import basic_scrape
+import logging
 
 mcp = FastMCP("ScraperAPI")
 
@@ -25,11 +26,18 @@ def scrape(params: Scrape) -> str:
         Scraped content as a string
     """
 
-    return basic_scrape(
-        url=str(params.url),
-        render=params.render,
-        country_code=params.country_code,
-        premium=params.premium,
-        ultra_premium=params.ultra_premium,
-        device_type=params.device_type,
-    )
+    logging.info(f"Invoking scrape tool with params: {params}")
+    try:
+        result = basic_scrape(
+            url=str(params.url),
+            render=params.render,
+            country_code=params.country_code,
+            premium=params.premium,
+            ultra_premium=params.ultra_premium,
+            device_type=params.device_type,
+        )
+        logging.info(f"Scrape tool completed for URL: {params.url}")
+        return result
+    except Exception as e:
+        logging.error(f"Scrape tool failed for URL: {params.url}. Error: {e}", exc_info=True)
+        raise

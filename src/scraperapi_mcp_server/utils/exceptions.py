@@ -2,6 +2,7 @@ from typing import Dict, Any
 from requests.exceptions import RequestException, HTTPError as RequestsHTTPError
 from mcp.shared.exceptions import McpError
 from mcp.types import ErrorData, INTERNAL_ERROR
+import logging
 
 
 class ApiKeyEnvVarNotSetError(Exception):
@@ -39,6 +40,7 @@ def handle_scraper_error(
         )
         error_message += f" Parameters used: {param_summary}"
 
+    logging.error(f"handle_scraper_error: {error_message}", exc_info=True)
     return McpError(
         ErrorData(
             code=INTERNAL_ERROR,
