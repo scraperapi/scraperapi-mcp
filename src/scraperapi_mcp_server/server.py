@@ -39,5 +39,7 @@ def scrape(params: Scrape) -> str:
         logging.info(f"Scrape tool completed for URL: {params.url}")
         return result
     except Exception as e:
-        logging.error(f"Scrape tool failed for URL: {params.url}. Error: {e}", exc_info=True)
+        logging.error(
+            f"Scrape tool failed for URL: {params.url}. Error: {e}", exc_info=True
+        )
         raise

@@ -166,3 +166,23 @@ Add this to your client configuration file:
 ```bash
 python3 -m scraperapi_mcp_server --debug
 ```
+
+### Testing
+
+This project uses [pytest](https://docs.pytest.org/en/stable/) for testing.
+
+#### Install Test Dependencies
+```bash
+# Install the package with test dependencies
+pip install -e ".[test]"
+```
+
+#### Running Tests
+
+```bash
+# Run All Tests
+pytest
+
+# Run Specific Test
+pytest <TEST_FILE_PATH>
+```

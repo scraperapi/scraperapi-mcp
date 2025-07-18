@@ -17,6 +17,17 @@ dependencies = [
     "requests>=2.32.3",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+    "pytest-mock>=3.10.0",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests",
+]
+
 [project.scripts]
 scraperapi-mcp-server = "scraperapi_mcp_server:main"
 

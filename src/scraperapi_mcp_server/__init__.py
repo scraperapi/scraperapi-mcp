@@ -13,7 +13,9 @@ def main():
         logging.debug("Running ScraperAPI MCP server...")
         mcp.run()
     except Exception as e:
-        logging.exception(f"Unhandled exception in ScraperAPI MCP server main loop: {e}")
+        logging.exception(
+            f"Unhandled exception in ScraperAPI MCP server main loop: {e}"
+        )
         raise
 
 
