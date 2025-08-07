@@ -7,7 +7,7 @@ class TestBasicScrape:
     def test_basic_scrape_success(self, mocker):
         mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
         mock_get = mocker.patch("scraperapi_mcp_server.scrape.scrape.requests.get")
-        
+
         mock_settings.API_KEY = "test_api_key"
         mock_settings.API_URL = "https://api.scraperapi.com"
         mock_settings.API_TIMEOUT_SECONDS = 30
@@ -34,7 +34,7 @@ class TestBasicScrape:
     def test_basic_scrape_error(self, mocker):
         mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
         mock_get = mocker.patch("scraperapi_mcp_server.scrape.scrape.requests.get")
-        
+
         mock_settings.API_KEY = "test_api_key"
         mock_settings.API_URL = "https://api.scraperapi.com"
         mock_settings.API_TIMEOUT_SECONDS = 30

@@ -1,39 +1,35 @@
-[project]
+[tool.poetry]
 name = "scraperapi-mcp-server"
 version = "0.1.0"
 description = "ScraperAPI MCP server"
 readme = "README.md"
-requires-python = ">=3.11"
-authors = [{ name = "ScraperAPI" }]
+authors = ["ScraperAPI"]
 keywords = ["http", "mcp", "llm", "automation", "scraping"]
 classifiers = [
     "Development Status :: 1 - Planning",
     "Programming Language :: Python :: 3.10",
 ]
-dependencies = [
-    "mcp[cli]>=1.6.0",
-    "pydantic>=2.11.3",
-    "pydantic-settings>=2.9.1",
-    "requests>=2.32.3",
-]
+packages = [{include = "scraperapi_mcp_server", from = "src"}]
 
-[project.optional-dependencies]
-test = [
-    "pytest>=7.4.0",
-    "pytest-mock>=3.10.0",
-]
+[tool.poetry.dependencies]
+python = ">=3.11"
+mcp = {extras = ["cli"], version = ">=1.6.0"}
+pydantic = ">=2.11.3"
+pydantic-settings = ">=2.9.1"
+requests = ">=2.32.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.4.0"
+pytest-mock = ">=3.10.0"
+
+[tool.poetry.scripts]
+scraperapi-mcp-server = "scraperapi_mcp_server:main"
 
 [tool.pytest.ini_options]
 markers = [
     "integration: marks tests as integration tests",
 ]
 
-[project.scripts]
-scraperapi-mcp-server = "scraperapi_mcp_server:main"
-
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-package-dir = {"" = "src"}
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
