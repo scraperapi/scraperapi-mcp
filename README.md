@@ -15,7 +15,7 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
 
 - Full implementation of the Model Context Protocol specification
 - Seamless integration with ScraperAPI for web scraping
-- Simple setup with Docker or Python
+- Simple setup with Python
 
 ## Architecture
 
@@ -36,7 +36,6 @@ The ScraperAPI MCP Server is designed to run as a local server on your machine, 
 
 ### Prerequisites
 - Python 3.11+
-- Docker (optional)
 
 ### Using Python
 
@@ -56,28 +55,6 @@ Add this to your client configuration file:
 }
 ```
 
-### Using Docker 
-
-Add this to your client configuration file:
-
-```json
-{
-  "mcpServers": {
-    "ScraperAPI": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "-e",
-        "API_KEY=${API_KEY}",
-        "--rm",
-        "scraperapi-mcp-server"]
-    }
-  }
-}
-```
-
-</br>
 
 > [!TIP]
 >
@@ -143,11 +120,6 @@ Add this to your client configuration file:
      pip install -e .
      ```
 
-   - **Using Docker:**
-     ```bash
-     # Build the Docker image locally
-     docker build -t scraperapi-mcp-server .
-     ```
 
 ### Run the server
    - **Using Python:**
@@ -155,11 +127,6 @@ Add this to your client configuration file:
      python -m scraperapi_mcp_server
      ```
 
-   - **Using Docker:**
-     ```bash
-     # Run the Docker container with your API key
-     docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
-     ```
 
 ### Debug
 
