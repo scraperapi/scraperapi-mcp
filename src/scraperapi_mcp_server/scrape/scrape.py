@@ -11,12 +11,13 @@ def basic_scrape(
     premium: bool = None,
     ultra_premium: bool = None,
     device_type: str = None,
+    output_format: str = "markdown",
+    autoparse: bool = False,
 ) -> str:
     logging.info(f"Starting scrape for URL: {url}")
     payload = {
         "api_key": settings.API_KEY,
         "url": url,
-        "output_format": "markdown",
         "scraper_sdk": "mcp-server",
     }
     logging.debug(f"Initial payload: {payload}")
@@ -26,6 +27,8 @@ def basic_scrape(
         "premium": (premium, lambda v: str(v).lower()),
         "ultra_premium": (ultra_premium, lambda v: str(v).lower()),
         "device_type": (device_type, str),
+        "output_format": (output_format, str),
+        "autoparse": (autoparse, lambda v: str(v).lower()),
     }
     for key, (value, formatter) in optional_params.items():
         if value is not None:

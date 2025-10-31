@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scraperapi-mcp-server"
-version = "0.1.0"
+version = "0.2.0"
 description = "ScraperAPI MCP server"
 readme = "README.md"
 authors = ["ScraperAPI"]

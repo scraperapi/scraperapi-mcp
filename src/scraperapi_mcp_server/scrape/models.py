@@ -29,3 +29,17 @@ class Scrape(BaseModel):
             description="Device type to scrape from. Set request to use `mobile` or `desktop` user agents",
         ),
     ]
+    output_format: Annotated[
+        str,
+        Field(
+            default="markdown",
+            description="Output format: 'text', 'markdown', 'csv' or 'json'",
+        ),
+    ]
+    autoparse: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="Enable automatic parsing of the content for select websites",
+        ),
+    ]

@@ -21,9 +21,12 @@ def scrape(params: Scrape) -> str:
             premium: Use premium residential/mobile proxies for higher success rate (costs more, incompatible with ultra_premium)
             ultra_premium: Activate advanced bypass mechanisms (costs more, incompatible with premium)
             device_type: 'mobile' or 'desktop' for device-specific user agents
+            output_format: 'text', 'markdown', 'csv' or 'json' for the output format (default: 'markdown')
+            autoparse: boolean to enable automatic parsing of the content for select websites (default: False).
+                    Set to true if the output_format is 'csv' or 'json'. Only available for certain websites.
 
     Returns:
-        Scraped content as a string
+        Scraped content as a string, csv or json
     """
 
     logging.info(f"Invoking scrape tool with params: {params}")
@@ -35,6 +38,8 @@ def scrape(params: Scrape) -> str:
             premium=params.premium,
             ultra_premium=params.ultra_premium,
             device_type=params.device_type,
+            output_format=params.output_format,
+            autoparse=params.autoparse,
         )
         logging.info(f"Scrape tool completed for URL: {params.url}")
         return result
