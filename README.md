@@ -76,6 +76,8 @@ Add this to your client configuration file:
     - `premium` (boolean, optional): Activate premium residential and mobile IPs
     - `ultra_premium` (boolean, optional): Activate advanced bypass mechanisms. Can not combine with `premium`
     - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
+    - `output_format` (string, optional): Allows you to instruct the API on what the response file type should be.
+    - `autoparse` (boolean, optional): Activate auto parsing for select websites. Defaults to `False`. Set to `True` only if you want the output format in `csv` or `json`.
   - Returns: The scraped content as a string
 
 ### Prompt templates
