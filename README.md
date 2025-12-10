@@ -15,7 +15,7 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
 
 - Full implementation of the Model Context Protocol specification
 - Seamless integration with ScraperAPI for web scraping
-- Simple setup with Python
+- Simple setup with Python or Docker
 
 ## Architecture
 
@@ -36,6 +36,7 @@ The ScraperAPI MCP Server is designed to run as a local server on your machine, 
 
 ### Prerequisites
 - Python 3.11+
+- Docker (optional)
 
 ### Using Python
 
@@ -55,6 +56,28 @@ Add this to your client configuration file:
 }
 ```
 
+### Using Docker 
+
+Add this to your client configuration file:
+
+```json
+{
+  "mcpServers": {
+    "ScraperAPI": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "-e",
+        "API_KEY=${API_KEY}",
+        "--rm",
+        "scraperapi-mcp-server"]
+    }
+  }
+}
+```
+
+</br>
 
 > [!TIP]
 >
@@ -76,6 +99,8 @@ Add this to your client configuration file:
     - `premium` (boolean, optional): Activate premium residential and mobile IPs
     - `ultra_premium` (boolean, optional): Activate advanced bypass mechanisms. Can not combine with `premium`
     - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
+    - `output_format` (string, optional): Allows you to instruct the API on what the response file type should be.
+    - `autoparse` (boolean, optional): Activate auto parsing for select websites. Defaults to `False`. Set to `True` only if you want the output format in `csv` or `json`.
   - Returns: The scraped content as a string
 
 ### Prompt templates
@@ -119,14 +144,22 @@ Add this to your client configuration file:
      # Install the local package in editable mode
      pip install -e .
      ```
-
+   - **Using Docker:**
+      ```bash
+      # Build the Docker image locally
+      docker build -t scraperapi-mcp-server .
+      ```
 
 ### Run the server
    - **Using Python:**
      ```bash
      python -m scraperapi_mcp_server
      ```
-
+   - **Using Docker:**
+     ```bash
+     # Run the Docker container with your API key
+     docker run -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> scraperapi-mcp-server
+     ```
 
 ### Debug
 
