@@ -114,13 +114,45 @@ Add this to your client configuration file:
 
 - `API_KEY`: Your ScraperAPI API key.
 
-### Configure for Claude Desktop App
+### Configure Claude Desktop App
 
 1. Open Claude Desktop Application
 2. Access the Settings Menu
 3. Click on the settings icon (typically a gear or three dots in the upper right corner)
 4. Select the "Developer" tab
-5. Click on "Edit Config" and paste [the JSON configuration file](#installation).
+5. Click on "Edit Config" and paste [the JSON configuration file](#installation)
+
+### Configure Cursor Editor
+
+1. Open Cursor
+2. Access the Settings Menu
+3. Open Cursor Settings 
+4. Go to Tools & Integrations section
+5. Click '+ Add MCP Server'
+6. Choose Manual and paste [the JSON configuration file](#installation)
+
+More [here](https://cursor.com/docs/context/mcp#servers)
+
+### Configure Windsurf Editor
+
+1. Open Windsurf
+2. Access the Settings Menu
+3. Click on the Cascade settings
+4. Click on the MCP server section
+3. Click on the gear icon, the `mcp_config.json` file will open
+5. Paste [the JSON configuration file](#installation)
+
+More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
+
+### Configure Cline (VS code extension)
+
+1. Open VS Code and click the Cline icon in the activity bar to open the Cline panel
+2. Click the MCP Servers icon in the top navigation bar of the Cline pane
+3. Select the "Configure" tab
+4. Click "Configure MCP Servers" at the bottom of the pane — this opens `cline_mcp_settings.json`
+5. Paste [the JSON configuration file](#installation)
+
+More [here](https://docs.cline.bot/mcp/adding-and-configuring-servers#editing-configuration-files)
 
 ## Development
 
