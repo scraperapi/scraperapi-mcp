@@ -1,6 +1,6 @@
 import requests
+from requests.exceptions import RequestException, HTTPError as RequestsHTTPError
 from scraperapi_mcp_server.config import settings
-from scraperapi_mcp_server.utils.exceptions import handle_scraper_error
 import logging
 
 
@@ -41,14 +41,32 @@ def basic_scrape(
             payload[key] = formatter(value)
             logging.debug(f"Added optional param: {key}={payload[key]}")
     try:
-        logging.info(f"Sending request to {settings.API_URL} with params: {payload}")
+        logging.info(f"Sending request to {settings.API_URL}")
         response = requests.get(
             settings.API_URL, params=payload, timeout=settings.API_TIMEOUT_SECONDS
         )
         response.raise_for_status()
         logging.info(f"Scrape successful for URL: {url}")
         return response.text
+    except RequestsHTTPError as e:
+        status_code = e.response.status_code if hasattr(e, "response") else "unknown"
+        param_summary = " ".join(
+            f"{k}={v}" for k, v in payload.items() if k != "api_key"
+        )
+        error_message = f"HTTP error {status_code} when scraping '{url}'. Parameters used: {param_summary}"
+        logging.error(f"basic_scrape: {error_message}", exc_info=True)
+        raise ScrapeError(error_message) from e
+    except RequestException as e:
+        error_message = f"Connection error when scraping '{url}': {e}"
+        logging.error(f"basic_scrape: {error_message}", exc_info=True)
+        raise ScrapeError(error_message) from e
     except Exception as e:
-        logging.error(f"Error during scrape for URL: {url}", exc_info=True)
-        error_obj = handle_scraper_error(e, url, payload)
-        raise Exception(error_obj.error.message) from e
+        error_message = f"Unexpected error when scraping '{url}': {e}"
+        logging.error(f"basic_scrape: {error_message}", exc_info=True)
+        raise ScrapeError(error_message) from e
+
+
+class ScrapeError(Exception):
+    """Raised when a scrape operation fails. Carries an actionable error message."""
+
+    pass

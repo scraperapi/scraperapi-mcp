@@ -1,6 +1,6 @@
 import pytest
 import requests
-from scraperapi_mcp_server.scrape.scrape import basic_scrape
+from scraperapi_mcp_server.scrape.scrape import basic_scrape, ScrapeError
 
 
 class TestBasicScrape:
@@ -42,5 +42,5 @@ class TestBasicScrape:
 
         mock_get.side_effect = requests.ConnectionError("Connection failed")
 
-        with pytest.raises(Exception):
+        with pytest.raises(ScrapeError, match="Connection error"):
             basic_scrape("https://example.com")

@@ -1,7 +1,8 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import ToolAnnotations
 from scraperapi_mcp_server.scrape.models import Scrape
-from scraperapi_mcp_server.scrape.scrape import basic_scrape
+from scraperapi_mcp_server.scrape.scrape import basic_scrape, ScrapeError
 from scraperapi_mcp_server.config import settings
 from scraperapi_mcp_server.utils.rate_limiter import RateLimiter, RateLimitExceededError
 import logging
@@ -45,7 +46,10 @@ def scrape(params: Scrape) -> str:
     """
 
     logging.info(f"Invoking scrape tool with params: {params}")
-    _rate_limiter.acquire()
+    try:
+        _rate_limiter.acquire()
+    except RateLimitExceededError as e:
+        raise ToolError(str(e)) from e
     try:
         result = basic_scrape(
             url=str(params.url),
@@ -59,8 +63,5 @@ def scrape(params: Scrape) -> str:
         )
         logging.info(f"Scrape tool completed for URL: {params.url}")
         return result
-    except Exception as e:
-        logging.error(
-            f"Scrape tool failed for URL: {params.url}. Error: {e}", exc_info=True
-        )
-        raise
+    except ScrapeError as e:
+        raise ToolError(str(e)) from e

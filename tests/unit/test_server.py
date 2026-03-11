@@ -1,6 +1,8 @@
 import pytest
+from mcp.server.fastmcp.exceptions import ToolError
 from scraperapi_mcp_server.server import mcp, scrape
 from scraperapi_mcp_server.scrape.models import Scrape
+from scraperapi_mcp_server.scrape.scrape import ScrapeError
 
 
 class TestMCPServer:
@@ -37,10 +39,26 @@ class TestMCPServer:
         assert result == "Scraped content"
         mock_basic_scrape.assert_called_once()
 
-    def test_scrape_tool_exception_handling(self, mocker):
+    def test_scrape_error_raises_tool_error(self, mocker):
         mock_basic_scrape = mocker.patch("scraperapi_mcp_server.server.basic_scrape")
         params = Scrape(url="https://example.com")
-        mock_basic_scrape.side_effect = Exception("API Error")
+        mock_basic_scrape.side_effect = ScrapeError(
+            "HTTP error 403 when scraping 'https://example.com'"
+        )
 
-        with pytest.raises(Exception, match="API Error"):
+        with pytest.raises(ToolError, match="HTTP error 403"):
+            scrape(params)
+
+    def test_rate_limit_raises_tool_error(self, mocker):
+        mocker.patch("scraperapi_mcp_server.server.basic_scrape")
+        mocker.patch(
+            "scraperapi_mcp_server.server._rate_limiter.acquire",
+            side_effect=__import__(
+                "scraperapi_mcp_server.utils.rate_limiter",
+                fromlist=["RateLimitExceededError"],
+            ).RateLimitExceededError("Rate limit exceeded"),
+        )
+        params = Scrape(url="https://example.com")
+
+        with pytest.raises(ToolError, match="Rate limit exceeded"):
             scrape(params)
