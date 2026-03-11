@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     API_KEY: str = os.getenv("API_KEY", "")
     API_URL: str = "https://api.scraperapi.com"
     API_TIMEOUT_SECONDS: int = 70
+    RATE_LIMIT_MAX_CALLS: int = int(os.getenv("RATE_LIMIT_MAX_CALLS", "10"))
+    RATE_LIMIT_WINDOW_SECONDS: float = float(
+        os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60")
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

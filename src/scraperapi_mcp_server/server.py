@@ -1,12 +1,27 @@
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 from scraperapi_mcp_server.scrape.models import Scrape
 from scraperapi_mcp_server.scrape.scrape import basic_scrape
+from scraperapi_mcp_server.config import settings
+from scraperapi_mcp_server.utils.rate_limiter import RateLimiter, RateLimitExceededError
 import logging
 
 mcp = FastMCP("ScraperAPI")
 
+_rate_limiter = RateLimiter(
+    max_calls=settings.RATE_LIMIT_MAX_CALLS,
+    window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS,
+)
 
-@mcp.tool()
+
+@mcp.tool(
+    annotations=ToolAnnotations(
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    ),
+)
 def scrape(params: Scrape) -> str:
     """
     Execute a web scrape using ScraperAPI with the specified parameters.
@@ -30,6 +45,7 @@ def scrape(params: Scrape) -> str:
     """
 
     logging.info(f"Invoking scrape tool with params: {params}")
+    _rate_limiter.acquire()
     try:
         result = basic_scrape(
             url=str(params.url),
