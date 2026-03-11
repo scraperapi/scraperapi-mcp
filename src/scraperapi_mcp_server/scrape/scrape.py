@@ -26,8 +26,14 @@ def basic_scrape(
         "country_code": (country_code, str),
         "premium": (premium, lambda v: str(v).lower()),
         "ultra_premium": (ultra_premium, lambda v: str(v).lower()),
-        "device_type": (device_type, str),
-        "output_format": (output_format, str),
+        "device_type": (
+            device_type,
+            lambda v: v.value if hasattr(v, "value") else str(v),
+        ),
+        "output_format": (
+            output_format,
+            lambda v: v.value if hasattr(v, "value") else str(v),
+        ),
         "autoparse": (autoparse, lambda v: str(v).lower()),
     }
     for key, (value, formatter) in optional_params.items():

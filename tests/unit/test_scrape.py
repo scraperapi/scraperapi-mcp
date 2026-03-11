@@ -26,6 +26,7 @@ class TestBasicScrape:
                 "api_key": "test_api_key",
                 "url": "https://example.com",
                 "output_format": "markdown",
+                "autoparse": "false",
                 "scraper_sdk": "mcp-server",
             },
             timeout=30,
