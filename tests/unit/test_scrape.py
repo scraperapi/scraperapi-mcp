@@ -1,13 +1,12 @@
 import pytest
-import requests
-from scraperapi_mcp_server.scrape.scrape import basic_scrape
+import httpx
+from scraperapi_mcp_server.scrape.scrape import basic_scrape, ScrapeError
 
 
 class TestBasicScrape:
-    def test_basic_scrape_success(self, mocker):
+    @pytest.mark.asyncio
+    async def test_basic_scrape_success(self, mocker):
         mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
-        mock_get = mocker.patch("scraperapi_mcp_server.scrape.scrape.requests.get")
-
         mock_settings.API_KEY = "test_api_key"
         mock_settings.API_URL = "https://api.scraperapi.com"
         mock_settings.API_TIMEOUT_SECONDS = 30
@@ -15,31 +14,48 @@ class TestBasicScrape:
         mock_response = mocker.Mock()
         mock_response.text = "<html><body>Test content</body></html>"
         mock_response.raise_for_status.return_value = None
-        mock_get.return_value = mock_response
 
-        result = basic_scrape("https://example.com")
+        mock_client = mocker.AsyncMock()
+        mock_client.get.return_value = mock_response
+        mock_client.__aenter__ = mocker.AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = mocker.AsyncMock(return_value=False)
+
+        mocker.patch(
+            "scraperapi_mcp_server.scrape.scrape.httpx.AsyncClient",
+            return_value=mock_client,
+        )
+
+        result = await basic_scrape("https://example.com")
 
         assert result == "<html><body>Test content</body></html>"
-        mock_get.assert_called_once_with(
+        mock_client.get.assert_called_once_with(
             "https://api.scraperapi.com",
             params={
                 "api_key": "test_api_key",
                 "url": "https://example.com",
                 "output_format": "markdown",
+                "autoparse": "false",
                 "scraper_sdk": "mcp-server",
             },
             timeout=30,
         )
 
-    def test_basic_scrape_error(self, mocker):
+    @pytest.mark.asyncio
+    async def test_basic_scrape_error(self, mocker):
         mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
-        mock_get = mocker.patch("scraperapi_mcp_server.scrape.scrape.requests.get")
-
         mock_settings.API_KEY = "test_api_key"
         mock_settings.API_URL = "https://api.scraperapi.com"
         mock_settings.API_TIMEOUT_SECONDS = 30
 
-        mock_get.side_effect = requests.ConnectionError("Connection failed")
+        mock_client = mocker.AsyncMock()
+        mock_client.get.side_effect = httpx.ConnectError("Connection failed")
+        mock_client.__aenter__ = mocker.AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = mocker.AsyncMock(return_value=False)
 
-        with pytest.raises(Exception):
-            basic_scrape("https://example.com")
+        mocker.patch(
+            "scraperapi_mcp_server.scrape.scrape.httpx.AsyncClient",
+            return_value=mock_client,
+        )
+
+        with pytest.raises(ScrapeError, match="Connection error"):
+            await basic_scrape("https://example.com")
