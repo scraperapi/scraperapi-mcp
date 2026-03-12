@@ -61,9 +61,9 @@ class TestScrapeModel:
         assert params.ultra_premium is True
         assert params.premium is False
 
-    def test_invalid_country_code(self):
-        with pytest.raises(ValidationError, match="Invalid country_code"):
-            Scrape(url="https://example.com", country_code="zz")
+    def test_unknown_country_code_passes_through(self):
+        params = Scrape(url="https://example.com", country_code="zz")
+        assert params.country_code == "zz"
 
     def test_valid_country_code(self):
         params = Scrape(url="https://example.com", country_code="us")

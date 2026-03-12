@@ -40,7 +40,7 @@ async def basic_scrape(
             logging.debug(f"Added optional param: {key}={payload[key]}")
     try:
         logging.info(f"Sending request to {settings.API_URL}")
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
             response = await client.get(
                 settings.API_URL,
                 params=payload,

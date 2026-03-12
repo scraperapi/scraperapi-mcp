@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Annotated, Optional
-from pydantic import BaseModel, Field, AnyUrl, model_validator
+from pydantic import BaseModel, ConfigDict, Field, AnyUrl, model_validator
 from scraperapi_mcp_server.utils.country_codes import COUNTRY_CODES
 
 
@@ -18,6 +18,12 @@ class DeviceType(str, Enum):
 
 class Scrape(BaseModel):
     """Parameters for scraping a URL."""
+
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        extra="forbid",
+    )
 
     url: Annotated[AnyUrl, Field(description="URL to scrape")]
     render: Annotated[
@@ -78,9 +84,5 @@ class Scrape(BaseModel):
             )
         if self.country_code is not None:
             code = self.country_code.strip().lower()
-            if code not in COUNTRY_CODES:
-                raise ValueError(
-                    f"Invalid country_code '{self.country_code}'. Use an ISO 3166-1 alpha-2 code (e.g. 'us', 'gb', 'de')."
-                )
-            self.country_code = COUNTRY_CODES[code]
+            self.__dict__["country_code"] = COUNTRY_CODES.get(code, code)
         return self

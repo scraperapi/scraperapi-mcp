@@ -2,13 +2,16 @@
 import logging
 from scraperapi_mcp_server.server import mcp
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def main():
     """ScraperAPI MCP server main module."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+    )
     logging.info("Starting ScraperAPI MCP server main module.")
-    # Run the server
     try:
         logging.debug("Running ScraperAPI MCP server...")
         mcp.run()
@@ -20,8 +23,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-    )
     main()
