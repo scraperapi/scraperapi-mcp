@@ -77,7 +77,7 @@ class Scrape(BaseModel):
                 "premium and ultra_premium cannot both be enabled. Choose one or the other."
             )
         if self.country_code is not None:
-            code = self.country_code.lower()
+            code = self.country_code.strip().lower()
             if code not in COUNTRY_CODES:
                 raise ValueError(
                     f"Invalid country_code '{self.country_code}'. Use an ISO 3166-1 alpha-2 code (e.g. 'us', 'gb', 'de')."

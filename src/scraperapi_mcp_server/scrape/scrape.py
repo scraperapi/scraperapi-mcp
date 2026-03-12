@@ -1,10 +1,9 @@
-import requests
-from requests.exceptions import RequestException, HTTPError as RequestsHTTPError
+import httpx
 from scraperapi_mcp_server.config import settings
 import logging
 
 
-def basic_scrape(
+async def basic_scrape(
     url: str,
     render: bool = None,
     country_code: str = None,
@@ -20,7 +19,6 @@ def basic_scrape(
         "url": url,
         "scraper_sdk": "mcp-server",
     }
-    logging.debug(f"Initial payload: {payload}")
     optional_params = {
         "render": (render, lambda v: str(v).lower()),
         "country_code": (country_code, str),
@@ -42,21 +40,24 @@ def basic_scrape(
             logging.debug(f"Added optional param: {key}={payload[key]}")
     try:
         logging.info(f"Sending request to {settings.API_URL}")
-        response = requests.get(
-            settings.API_URL, params=payload, timeout=settings.API_TIMEOUT_SECONDS
-        )
-        response.raise_for_status()
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                settings.API_URL,
+                params=payload,
+                timeout=settings.API_TIMEOUT_SECONDS,
+            )
+            response.raise_for_status()
         logging.info(f"Scrape successful for URL: {url}")
         return response.text
-    except RequestsHTTPError as e:
-        status_code = e.response.status_code if hasattr(e, "response") else "unknown"
+    except httpx.HTTPStatusError as e:
+        status_code = e.response.status_code
         param_summary = " ".join(
             f"{k}={v}" for k, v in payload.items() if k != "api_key"
         )
         error_message = f"HTTP error {status_code} when scraping '{url}'. Parameters used: {param_summary}"
         logging.error(f"basic_scrape: {error_message}", exc_info=True)
         raise ScrapeError(error_message) from e
-    except RequestException as e:
+    except httpx.RequestError as e:
         error_message = f"Connection error when scraping '{url}': {e}"
         logging.error(f"basic_scrape: {error_message}", exc_info=True)
         raise ScrapeError(error_message) from e

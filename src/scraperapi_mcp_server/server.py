@@ -16,6 +16,7 @@ _rate_limiter = RateLimiter(
 
 
 @mcp.tool(
+    name="scrape",
     annotations=ToolAnnotations(
         readOnlyHint=True,
         destructiveHint=False,
@@ -23,7 +24,7 @@ _rate_limiter = RateLimiter(
         openWorldHint=True,
     ),
 )
-def scrape(params: Scrape) -> str:
+async def scrape(params: Scrape) -> str:
     """
     Execute a web scrape using ScraperAPI with the specified parameters.
 
@@ -51,7 +52,7 @@ def scrape(params: Scrape) -> str:
     except RateLimitExceededError as e:
         raise ToolError(str(e)) from e
     try:
-        result = basic_scrape(
+        result = await basic_scrape(
             url=str(params.url),
             render=params.render,
             country_code=params.country_code,
