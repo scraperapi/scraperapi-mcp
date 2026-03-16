@@ -130,13 +130,14 @@ class TestBasicScrape:
         assert result.image_data == small_image_bytes
 
     @pytest.mark.asyncio
-    async def test_basic_scrape_octet_stream_too_large(self, mocker):
-        """Binary response with application/octet-stream exceeding the size limit."""
+    async def test_basic_scrape_octet_stream_large(self, mocker):
+        """Large non-image binary response is returned as text (not blocked by image size limit)."""
         _mock_settings(mocker, image_size_limit=100)
 
         large_binary = b"\x00" * 200
         mock_response = mocker.Mock()
         mock_response.content = large_binary
+        mock_response.text = large_binary.decode("latin-1")
         mock_response.headers = {"Content-Type": "application/octet-stream"}
         mock_response.raise_for_status.return_value = None
 
@@ -145,8 +146,7 @@ class TestBasicScrape:
         result = await basic_scrape("https://example.com/file.bin")
 
         assert not result.is_image
-        assert "exceeds the" in result.text
-        assert "Content found at" in result.text
+        assert result.text == large_binary.decode("latin-1")
 
     @pytest.mark.asyncio
     async def test_basic_scrape_octet_stream_small(self, mocker):

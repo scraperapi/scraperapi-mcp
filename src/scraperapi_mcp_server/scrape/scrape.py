@@ -158,25 +158,6 @@ async def basic_scrape(
                 )
             return ScrapeResult(image_data=response.content, mime_type=content_type)
 
-        # Guard ALL responses against the size limit.
-        # ScraperAPI may return binary data (e.g. images) with a text
-        # content type when output_format is set, so we can't trust the
-        # content type alone.
-        if content_size > size_limit:
-            logging.warning(
-                f"Response too large ({_format_file_size(content_size)}), "
-                f"content_type={content_type}, limit is {_format_file_size(size_limit)}"
-            )
-            return ScrapeResult(
-                text=(
-                    f"Content found at {url}\n"
-                    f"Type: {content_type}\n"
-                    f"Size: {_format_file_size(content_size)}\n\n"
-                    f"The response exceeds the {_format_file_size(size_limit)} "
-                    f"size limit and cannot be returned directly."
-                )
-            )
-
         return ScrapeResult(text=response.text)
     except httpx.HTTPStatusError as e:
         status_code = e.response.status_code
