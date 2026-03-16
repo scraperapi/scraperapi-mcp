@@ -1,8 +1,9 @@
 import pytest
+from mcp.server.fastmcp import Image
 from mcp.server.fastmcp.exceptions import ToolError
 from scraperapi_mcp_server.server import mcp, scrape
 from scraperapi_mcp_server.scrape.models import Scrape
-from scraperapi_mcp_server.scrape.scrape import ScrapeError
+from scraperapi_mcp_server.scrape.scrape import ScrapeError, ScrapeResult
 
 
 class TestMCPServer:
@@ -18,11 +19,30 @@ class TestMCPServer:
             new_callable=mocker.AsyncMock,
         )
         params = Scrape(url="https://example.com")
-        mock_basic_scrape.return_value = "<html><body>Test content</body></html>"
+        mock_basic_scrape.return_value = ScrapeResult(
+            text="<html><body>Test content</body></html>"
+        )
 
         result = await scrape(params)
 
         assert result == "<html><body>Test content</body></html>"
+        mock_basic_scrape.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_scrape_tool_returns_image(self, mocker):
+        mock_basic_scrape = mocker.patch(
+            "scraperapi_mcp_server.server.basic_scrape",
+            new_callable=mocker.AsyncMock,
+        )
+        params = Scrape(url="https://example.com/photo.png")
+        fake_image_bytes = b"\x89PNG\r\n\x1a\nfake-image-data"
+        mock_basic_scrape.return_value = ScrapeResult(
+            image_data=fake_image_bytes, mime_type="image/png"
+        )
+
+        result = await scrape(params)
+
+        assert isinstance(result, Image)
         mock_basic_scrape.assert_called_once()
 
     @pytest.mark.asyncio
@@ -40,7 +60,7 @@ class TestMCPServer:
             device_type="mobile",
         )
 
-        mock_basic_scrape.return_value = "Scraped content"
+        mock_basic_scrape.return_value = ScrapeResult(text="Scraped content")
 
         result = await scrape(params)
 

@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     API_TIMEOUT_SECONDS: int = 70
     RATE_LIMIT_MAX_CALLS: int = 10
     RATE_LIMIT_WINDOW_SECONDS: float = 60.0
+    IMAGE_SIZE_LIMIT_BYTES: int = (
+        700_000  # ~700KB raw → ~933KB base64, stays under 1MB transport limit
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

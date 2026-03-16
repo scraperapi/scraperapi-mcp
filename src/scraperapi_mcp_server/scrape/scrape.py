@@ -1,6 +1,73 @@
 import httpx
 from scraperapi_mcp_server.config import settings
 import logging
+from dataclasses import dataclass
+from typing import Optional
+
+
+IMAGE_CONTENT_TYPES = frozenset(
+    {
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+        "image/svg+xml",
+        "image/bmp",
+        "image/tiff",
+    }
+)
+
+# Magic byte signatures for common image formats
+IMAGE_SIGNATURES = (
+    (b"\x89PNG\r\n\x1a\n", "image/png"),
+    (b"\xff\xd8\xff", "image/jpeg"),
+    (b"GIF87a", "image/gif"),
+    (b"GIF89a", "image/gif"),
+    (b"RIFF", "image/webp"),  # WebP starts with RIFF....WEBP
+    (b"BM", "image/bmp"),
+    (b"II\x2a\x00", "image/tiff"),  # little-endian TIFF
+    (b"MM\x00\x2a", "image/tiff"),  # big-endian TIFF
+)
+
+
+def _detect_image_by_magic_bytes(data: bytes) -> Optional[str]:
+    """Detect image format from magic bytes. Returns MIME type or None."""
+    for signature, mime_type in IMAGE_SIGNATURES:
+        if data[:len(signature)] == signature:
+            # Extra check for WebP: bytes 8-12 must be "WEBP"
+            if mime_type == "image/webp" and data[8:12] != b"WEBP":
+                continue
+            return mime_type
+    return None
+
+
+def _format_file_size(size_bytes: int) -> str:
+    """Format byte count as a human-readable string."""
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    elif size_bytes < 1024 * 1024:
+        return f"{size_bytes / 1024:.1f} KB"
+    else:
+        return f"{size_bytes / (1024 * 1024):.1f} MB"
+
+
+@dataclass
+class ScrapeResult:
+    """Result of a scrape operation, supporting both text and image content."""
+
+    text: Optional[str] = None
+    image_data: Optional[bytes] = None
+    mime_type: Optional[str] = None
+
+    @property
+    def is_image(self) -> bool:
+        return self.image_data is not None
+
+
+def _get_content_type(response: httpx.Response) -> str:
+    """Extract the base content type from a response, without parameters."""
+    content_type = response.headers.get("Content-Type", "")
+    return content_type.split(";")[0].strip().lower()
 
 
 async def basic_scrape(
@@ -12,7 +79,7 @@ async def basic_scrape(
     device_type: str = None,
     output_format: str = "markdown",
     autoparse: bool = False,
-) -> str:
+) -> ScrapeResult:
     logging.info(f"Starting scrape for URL: {url}")
     payload = {
         "api_key": settings.API_KEY,
@@ -48,7 +115,69 @@ async def basic_scrape(
             )
             response.raise_for_status()
         logging.info(f"Scrape successful for URL: {url}")
-        return response.text
+
+        content_type = _get_content_type(response)
+        content_size = len(response.content)
+        size_limit = settings.IMAGE_SIZE_LIMIT_BYTES
+        is_image = content_type in IMAGE_CONTENT_TYPES or content_type.startswith(
+            "image/"
+        )
+
+        # ScraperAPI may return image bytes with a non-image content type
+        # (e.g. text/plain when output_format is set). Fall back to magic
+        # byte detection so we still handle the image correctly.
+        if not is_image:
+            detected_mime = _detect_image_by_magic_bytes(response.content)
+            if detected_mime:
+                is_image = True
+                content_type = detected_mime
+                logging.info(
+                    f"Image detected by magic bytes ({content_type}) "
+                    f"despite Content-Type header"
+                )
+
+        # Handle image responses
+        if is_image:
+            logging.info(
+                f"Image response detected: {content_type}, "
+                f"size: {_format_file_size(content_size)}"
+            )
+            if content_size > size_limit:
+                logging.warning(
+                    f"Image too large ({_format_file_size(content_size)}), "
+                    f"limit is {_format_file_size(size_limit)}"
+                )
+                return ScrapeResult(
+                    text=(
+                        f"Image found at {url}\n"
+                        f"Type: {content_type}\n"
+                        f"Size: {_format_file_size(content_size)}\n\n"
+                        f"The image exceeds the {_format_file_size(size_limit)} "
+                        f"size limit for inline content and cannot be returned directly."
+                    )
+                )
+            return ScrapeResult(image_data=response.content, mime_type=content_type)
+
+        # Guard ALL responses against the size limit.
+        # ScraperAPI may return binary data (e.g. images) with a text
+        # content type when output_format is set, so we can't trust the
+        # content type alone.
+        if content_size > size_limit:
+            logging.warning(
+                f"Response too large ({_format_file_size(content_size)}), "
+                f"content_type={content_type}, limit is {_format_file_size(size_limit)}"
+            )
+            return ScrapeResult(
+                text=(
+                    f"Content found at {url}\n"
+                    f"Type: {content_type}\n"
+                    f"Size: {_format_file_size(content_size)}\n\n"
+                    f"The response exceeds the {_format_file_size(size_limit)} "
+                    f"size limit and cannot be returned directly."
+                )
+            )
+
+        return ScrapeResult(text=response.text)
     except httpx.HTTPStatusError as e:
         status_code = e.response.status_code
         param_summary = " ".join(

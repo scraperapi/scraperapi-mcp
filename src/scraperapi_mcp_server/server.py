@@ -1,4 +1,4 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Image
 from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import ToolAnnotations
 from scraperapi_mcp_server.scrape.models import Scrape
@@ -27,6 +27,8 @@ _rate_limiter = RateLimiter(
 async def scrape(params: Scrape) -> str:
     """
     Execute a web scrape using ScraperAPI with the specified parameters.
+    Supports both text and image URLs. When the target URL points to an image,
+    the image content is returned directly.
 
     Parameters:
         params: Scrape model containing:
@@ -43,7 +45,7 @@ async def scrape(params: Scrape) -> str:
                     Set to true if the output_format is 'csv' or 'json'. Only available for certain websites.
 
     Returns:
-        Scraped content as a string, csv or json
+        Scraped content as text, csv or json
     """
 
     logging.info(f"Invoking scrape tool with params: {params}")
@@ -63,6 +65,15 @@ async def scrape(params: Scrape) -> str:
             autoparse=params.autoparse,
         )
         logging.info(f"Scrape tool completed for URL: {params.url}")
-        return result
+
+        if result.is_image:
+            logging.info(
+                f"Returning image content ({result.mime_type}) for URL: {params.url}"
+            )
+            # Image() expects short format name (e.g. "jpeg"), not full MIME type
+            image_format = result.mime_type.removeprefix("image/")
+            return Image(data=result.image_data, format=image_format)
+
+        return result.text
     except ScrapeError as e:
         raise ToolError(str(e)) from e
