@@ -123,9 +123,6 @@ async def basic_scrape(
             "image/"
         )
 
-        # ScraperAPI may return image bytes with a non-image content type
-        # (e.g. text/plain when output_format is set). Fall back to magic
-        # byte detection so we still handle the image correctly.
         if not is_image:
             detected_mime = _detect_image_by_magic_bytes(response.content)
             if detected_mime:
@@ -136,7 +133,6 @@ async def basic_scrape(
                     f"despite Content-Type header"
                 )
 
-        # Handle image responses
         if is_image:
             logging.info(
                 f"Image response detected: {content_type}, "
