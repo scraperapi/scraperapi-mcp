@@ -227,6 +227,45 @@ class TestBasicScrape:
         assert result.mime_type == "image/png"
 
     @pytest.mark.asyncio
+    async def test_basic_scrape_bmp_detected_by_magic_bytes(self, mocker):
+        """Valid BMP with correct reserved bytes is detected as image."""
+        _mock_settings(mocker)
+
+        # BM + 4-byte file size + 4 zero reserved bytes
+        bmp_data = b"BM\x36\x00\x00\x00\x00\x00\x00\x00" + b"\x00" * 50
+        mock_response = mocker.Mock()
+        mock_response.content = bmp_data
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/image.bmp")
+
+        assert result.is_image
+        assert result.image_data == bmp_data
+        assert result.mime_type == "image/bmp"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_bm_text_not_detected_as_bmp(self, mocker):
+        """Text starting with 'BM' should not be misidentified as a BMP image."""
+        _mock_settings(mocker)
+
+        text_content = b"BM is not a bitmap file"
+        mock_response = mocker.Mock()
+        mock_response.content = text_content
+        mock_response.text = text_content.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/notes.txt")
+
+        assert not result.is_image
+        assert result.text == "BM is not a bitmap file"
+
+    @pytest.mark.asyncio
     async def test_basic_scrape_error(self, mocker):
         _mock_settings(mocker)
 

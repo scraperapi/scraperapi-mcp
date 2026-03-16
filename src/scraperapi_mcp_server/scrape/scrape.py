@@ -37,6 +37,9 @@ def _detect_image_by_magic_bytes(data: bytes) -> Optional[str]:
             # Extra check for WebP: bytes 8-12 must be "WEBP"
             if mime_type == "image/webp" and data[8:12] != b"WEBP":
                 continue
+            # Extra check for BMP: bytes 6-9 (reserved) must be zero
+            if mime_type == "image/bmp" and data[6:10] != b"\x00\x00\x00\x00":
+                continue
             return mime_type
     return None
 
