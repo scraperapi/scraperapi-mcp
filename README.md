@@ -9,6 +9,10 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
 - [Installation](#installation)
 - [API Reference](#api-reference)
 - [Configuration](#configuration)
+  - [Claude Desktop App & Claude Code](#configure-claude-desktop-app--claude-code)
+  - [Cursor](#configure-cursor-editor)
+  - [Windsurf](#configure-windsurf-editor)
+  - [Cline](#configure-cline-vs-code-extension)
 - [Development](#development)
 
 ## Features
@@ -119,13 +123,18 @@ Add this to your client configuration file:
 
 - `API_KEY`: Your ScraperAPI API key.
 
-### Configure Claude Desktop App
+### Configure Claude Desktop App & Claude Code
 
-1. Open Claude Desktop Application
-2. Access the Settings Menu
-3. Click on the settings icon (typically a gear or three dots in the upper right corner)
-4. Select the "Developer" tab
-5. Click on "Edit Config" and paste [the JSON configuration file](#installation)
+**Claude Desktop:**
+1. Open Claude Desktop and click the settings icon
+2. Select the "Developer" tab
+3. Click "Edit Config" and paste [the JSON configuration file](#installation)
+
+**Claude Code:**
+1. Add the server manually to your `.claude/settings.json` with [the JSON configuration file](#installation), or run:
+   ```bash
+   claude mcp add scraperapi -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> -- python -m scraperapi_mcp_server
+   ```
 
 ### Configure Cursor Editor
 
