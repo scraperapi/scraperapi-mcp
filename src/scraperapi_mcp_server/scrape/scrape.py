@@ -33,7 +33,7 @@ IMAGE_SIGNATURES = (
 def _detect_image_by_magic_bytes(data: bytes) -> Optional[str]:
     """Detect image format from magic bytes. Returns MIME type or None."""
     for signature, mime_type in IMAGE_SIGNATURES:
-        if data[:len(signature)] == signature:
+        if data[: len(signature)] == signature:
             # Extra check for WebP: bytes 8-12 must be "WEBP"
             if mime_type == "image/webp" and data[8:12] != b"WEBP":
                 continue

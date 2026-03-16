@@ -24,7 +24,7 @@ _rate_limiter = RateLimiter(
         openWorldHint=True,
     ),
 )
-async def scrape(params: Scrape) -> str:
+async def scrape(params: Scrape) -> str | Image:
     """
     Execute a web scrape using ScraperAPI with the specified parameters.
     Supports both text and image URLs. When the target URL points to an image,
