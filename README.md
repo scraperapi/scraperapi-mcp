@@ -40,6 +40,11 @@ The ScraperAPI MCP Server is designed to run as a local server on your machine, 
 
 ### Using Python
 
+Install the package:
+```bash
+pip install scraperapi-mcp-server
+```
+
 Add this to your client configuration file:
 
 ```json
@@ -139,8 +144,8 @@ More [here](https://cursor.com/docs/context/mcp#servers)
 2. Access the Settings Menu
 3. Click on the Cascade settings
 4. Click on the MCP server section
-3. Click on the gear icon, the `mcp_config.json` file will open
-5. Paste [the JSON configuration file](#installation)
+5. Click on the gear icon, the `mcp_config.json` file will open
+6. Paste [the JSON configuration file](#installation)
 
 More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
 
@@ -164,8 +169,12 @@ More [here](https://docs.cline.bot/mcp/adding-and-configuring-servers#editing-co
    cd scraperapi-mcp
    ```
 
-2. **Install dependencies and run the package locally:**
-   - **Using Python:**
+2. **Install dependencies:**
+   - **Using Poetry:**
+     ```bash
+     poetry install
+     ```
+   - **Using pip:**
      ```bash
      # Create virtual environment and activate it
      python -m venv .venv
@@ -204,10 +213,15 @@ python3 -m scraperapi_mcp_server --debug
 This project uses [pytest](https://docs.pytest.org/en/stable/) for testing.
 
 #### Install Test Dependencies
-```bash
-# Install the package with test dependencies
-pip install -e ".[test]"
-```
+- **Using Poetry:**
+  ```bash
+  poetry install --with dev
+  ```
+- **Using pip:**
+  ```bash
+  pip install -e .
+  pip install pytest pytest-mock pytest-asyncio
+  ```
 
 #### Running Tests
 
