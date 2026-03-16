@@ -1,6 +1,7 @@
 import pytest
 from scraperapi_mcp_server.server import scrape
 from scraperapi_mcp_server.scrape.models import Scrape
+from scraperapi_mcp_server.scrape.scrape import ScrapeResult
 
 
 class TestIntegration:
@@ -13,8 +14,8 @@ class TestIntegration:
             "scraperapi_mcp_server.server.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
-        mock_basic_scrape.return_value = (
-            "<html><body>Integration test content</body></html>"
+        mock_basic_scrape.return_value = ScrapeResult(
+            text="<html><body>Integration test content</body></html>"
         )
 
         params = Scrape(
@@ -60,9 +61,9 @@ class TestIntegration:
             new_callable=mocker.AsyncMock,
         )
         mock_basic_scrape.side_effect = [
-            "Content from first request",
-            "Content from second request",
-            "Content from third request",
+            ScrapeResult(text="Content from first request"),
+            ScrapeResult(text="Content from second request"),
+            ScrapeResult(text="Content from third request"),
         ]
 
         params1 = Scrape(url="https://example1.com")
