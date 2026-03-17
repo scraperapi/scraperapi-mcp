@@ -1,7 +1,7 @@
 import pytest
 from scraperapi_mcp_server.server import scrape
 from scraperapi_mcp_server.scrape.models import Scrape
-from scraperapi_mcp_server.scrape.scrape import ScrapeResult
+from scraperapi_mcp_server.scrape.models import ScrapeResult
 
 
 class TestIntegration:

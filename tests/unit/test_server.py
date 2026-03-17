@@ -3,7 +3,7 @@ from mcp.server.fastmcp import Image
 from mcp.server.fastmcp.exceptions import ToolError
 from scraperapi_mcp_server.server import mcp, scrape
 from scraperapi_mcp_server.scrape.models import Scrape
-from scraperapi_mcp_server.scrape.scrape import ScrapeError, ScrapeResult
+from scraperapi_mcp_server.scrape.models import ScrapeError, ScrapeResult
 
 
 class TestMCPServer:

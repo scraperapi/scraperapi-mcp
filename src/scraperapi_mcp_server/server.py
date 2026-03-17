@@ -2,7 +2,8 @@ from mcp.server.fastmcp import FastMCP, Image
 from mcp.server.fastmcp.exceptions import ToolError
 from mcp.types import ToolAnnotations
 from scraperapi_mcp_server.scrape.models import Scrape
-from scraperapi_mcp_server.scrape.scrape import basic_scrape, ScrapeError
+from scraperapi_mcp_server.scrape.scrape import basic_scrape
+from scraperapi_mcp_server.scrape.models import ScrapeError
 from scraperapi_mcp_server.config import settings
 from scraperapi_mcp_server.utils.rate_limiter import RateLimiter, RateLimitExceededError
 import logging

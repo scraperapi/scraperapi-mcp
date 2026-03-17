@@ -1,9 +1,14 @@
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-from scraperapi_mcp_server.utils.exceptions import ApiKeyEnvVarNotSetError
 
 
 load_dotenv()
+
+
+class ApiKeyEnvVarNotSetError(Exception):
+    """Raised when the API key environment variable is not set."""
+
+    pass
 
 
 class Settings(BaseSettings):

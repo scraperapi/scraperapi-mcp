@@ -1,6 +1,7 @@
 import pytest
 import httpx
-from scraperapi_mcp_server.scrape.scrape import basic_scrape, ScrapeError, ScrapeResult
+from scraperapi_mcp_server.scrape.scrape import basic_scrape
+from scraperapi_mcp_server.scrape.models import ScrapeError, ScrapeResult
 
 
 def _mock_httpx_client(mocker, mock_response):
@@ -264,6 +265,84 @@ class TestBasicScrape:
 
         assert not result.is_image
         assert result.text == "BM is not a bitmap file"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_svg_with_text_content_type(self, mocker):
+        """SVG served as text/plain is detected via content inspection."""
+        _mock_settings(mocker)
+
+        svg_data = b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle r="50"/></svg>'
+        mock_response = mocker.Mock()
+        mock_response.content = svg_data
+        mock_response.text = svg_data.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/icon.svg")
+
+        assert result.is_image
+        assert result.image_data == svg_data
+        assert result.mime_type == "image/svg+xml"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_svg_with_xml_declaration(self, mocker):
+        """SVG with leading <?xml ...?> declaration is still detected."""
+        _mock_settings(mocker)
+
+        svg_data = b'<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'
+        mock_response = mocker.Mock()
+        mock_response.content = svg_data
+        mock_response.text = svg_data.decode()
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/drawing.svg")
+
+        assert result.is_image
+        assert result.mime_type == "image/svg+xml"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_xml_not_detected_as_svg(self, mocker):
+        """Generic XML that is not SVG should not be misidentified."""
+        _mock_settings(mocker)
+
+        xml_data = b'<?xml version="1.0"?>\n<root><item>hello</item></root>'
+        mock_response = mocker.Mock()
+        mock_response.content = xml_data
+        mock_response.text = xml_data.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/data.xml")
+
+        assert not result.is_image
+        assert result.text == xml_data.decode()
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_svg_too_large(self, mocker):
+        """Oversized SVG with wrong content type triggers size guard."""
+        _mock_settings(mocker, image_size_limit=100)
+
+        svg_data = b'<svg xmlns="http://www.w3.org/2000/svg">' + b"x" * 200 + b"</svg>"
+        mock_response = mocker.Mock()
+        mock_response.content = svg_data
+        mock_response.text = svg_data.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/big.svg")
+
+        assert not result.is_image
+        assert "exceeds the" in result.text
+        assert "image/svg+xml" in result.text
 
     @pytest.mark.asyncio
     async def test_basic_scrape_error(self, mocker):

@@ -1,47 +1,8 @@
 import httpx
 from scraperapi_mcp_server.config import settings
+from scraperapi_mcp_server.scrape.models import ScrapeError, ScrapeResult
+from scraperapi_mcp_server.utils.image_detection import detect_image_mime
 import logging
-from dataclasses import dataclass
-from typing import Optional
-
-
-IMAGE_CONTENT_TYPES = frozenset(
-    {
-        "image/png",
-        "image/jpeg",
-        "image/gif",
-        "image/webp",
-        "image/svg+xml",
-        "image/bmp",
-        "image/tiff",
-    }
-)
-
-# Magic byte signatures for common image formats
-IMAGE_SIGNATURES = (
-    (b"\x89PNG\r\n\x1a\n", "image/png"),
-    (b"\xff\xd8\xff", "image/jpeg"),
-    (b"GIF87a", "image/gif"),
-    (b"GIF89a", "image/gif"),
-    (b"RIFF", "image/webp"),  # WebP starts with RIFF....WEBP
-    (b"BM", "image/bmp"),
-    (b"II\x2a\x00", "image/tiff"),  # little-endian TIFF
-    (b"MM\x00\x2a", "image/tiff"),  # big-endian TIFF
-)
-
-
-def _detect_image_by_magic_bytes(data: bytes) -> Optional[str]:
-    """Detect image format from magic bytes. Returns MIME type or None."""
-    for signature, mime_type in IMAGE_SIGNATURES:
-        if data[: len(signature)] == signature:
-            # Extra check for WebP: bytes 8-12 must be "WEBP"
-            if mime_type == "image/webp" and data[8:12] != b"WEBP":
-                continue
-            # Extra check for BMP: bytes 6-9 (reserved) must be zero
-            if mime_type == "image/bmp" and data[6:10] != b"\x00\x00\x00\x00":
-                continue
-            return mime_type
-    return None
 
 
 def _format_file_size(size_bytes: int) -> str:
@@ -52,19 +13,6 @@ def _format_file_size(size_bytes: int) -> str:
         return f"{size_bytes / 1024:.1f} KB"
     else:
         return f"{size_bytes / (1024 * 1024):.1f} MB"
-
-
-@dataclass
-class ScrapeResult:
-    """Result of a scrape operation, supporting both text and image content."""
-
-    text: Optional[str] = None
-    image_data: Optional[bytes] = None
-    mime_type: Optional[str] = None
-
-    @property
-    def is_image(self) -> bool:
-        return self.image_data is not None
 
 
 def _get_content_type(response: httpx.Response) -> str:
@@ -122,21 +70,10 @@ async def basic_scrape(
         content_type = _get_content_type(response)
         content_size = len(response.content)
         size_limit = settings.IMAGE_SIZE_LIMIT_BYTES
-        is_image = content_type in IMAGE_CONTENT_TYPES or content_type.startswith(
-            "image/"
-        )
+        image_mime = detect_image_mime(content_type, response.content)
 
-        if not is_image:
-            detected_mime = _detect_image_by_magic_bytes(response.content)
-            if detected_mime:
-                is_image = True
-                content_type = detected_mime
-                logging.info(
-                    f"Image detected by magic bytes ({content_type}) "
-                    f"despite Content-Type header"
-                )
-
-        if is_image:
+        if image_mime:
+            content_type = image_mime
             logging.info(
                 f"Image response detected: {content_type}, "
                 f"size: {_format_file_size(content_size)}"
@@ -174,9 +111,3 @@ async def basic_scrape(
         error_message = f"Unexpected error when scraping '{url}': {e}"
         logging.error(f"basic_scrape: {error_message}", exc_info=True)
         raise ScrapeError(error_message) from e
-
-
-class ScrapeError(Exception):
-    """Raised when a scrape operation fails. Carries an actionable error message."""
-
-    pass
