@@ -1,7 +1,27 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated, Optional
 from pydantic import BaseModel, ConfigDict, Field, AnyUrl, model_validator
 from scraperapi_mcp_server.utils.country_codes import COUNTRY_CODES
+
+
+class ScrapeError(Exception):
+    """Raised when a scrape operation fails. Carries an actionable error message."""
+
+    pass
+
+
+@dataclass
+class ScrapeResult:
+    """Result of a scrape operation, supporting both text and image content."""
+
+    text: Optional[str] = None
+    image_data: Optional[bytes] = None
+    mime_type: Optional[str] = None
+
+    @property
+    def is_image(self) -> bool:
+        return self.image_data is not None
 
 
 class OutputFormat(str, Enum):

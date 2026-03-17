@@ -1,6 +1,24 @@
 import httpx
 from scraperapi_mcp_server.config import settings
+from scraperapi_mcp_server.scrape.models import ScrapeError, ScrapeResult
+from scraperapi_mcp_server.utils.image_detection import detect_image_mime
 import logging
+
+
+def _format_file_size(size_bytes: int) -> str:
+    """Format byte count as a human-readable string."""
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    elif size_bytes < 1024 * 1024:
+        return f"{size_bytes / 1024:.1f} KB"
+    else:
+        return f"{size_bytes / (1024 * 1024):.1f} MB"
+
+
+def _get_content_type(response: httpx.Response) -> str:
+    """Extract the base content type from a response, without parameters."""
+    content_type = response.headers.get("Content-Type", "")
+    return content_type.split(";")[0].strip().lower()
 
 
 async def basic_scrape(
@@ -12,7 +30,7 @@ async def basic_scrape(
     device_type: str = None,
     output_format: str = "markdown",
     autoparse: bool = False,
-) -> str:
+) -> ScrapeResult:
     logging.info(f"Starting scrape for URL: {url}")
     payload = {
         "api_key": settings.API_KEY,
@@ -48,7 +66,35 @@ async def basic_scrape(
             )
             response.raise_for_status()
         logging.info(f"Scrape successful for URL: {url}")
-        return response.text
+
+        content_type = _get_content_type(response)
+        content_size = len(response.content)
+        size_limit = settings.IMAGE_SIZE_LIMIT_BYTES
+        image_mime = detect_image_mime(content_type, response.content)
+
+        if image_mime:
+            content_type = image_mime
+            logging.info(
+                f"Image response detected: {content_type}, "
+                f"size: {_format_file_size(content_size)}"
+            )
+            if content_size > size_limit:
+                logging.warning(
+                    f"Image too large ({_format_file_size(content_size)}), "
+                    f"limit is {_format_file_size(size_limit)}"
+                )
+                return ScrapeResult(
+                    text=(
+                        f"Image found at {url}\n"
+                        f"Type: {content_type}\n"
+                        f"Size: {_format_file_size(content_size)}\n\n"
+                        f"The image exceeds the {_format_file_size(size_limit)} "
+                        f"size limit for inline content and cannot be returned directly."
+                    )
+                )
+            return ScrapeResult(image_data=response.content, mime_type=content_type)
+
+        return ScrapeResult(text=response.text)
     except httpx.HTTPStatusError as e:
         status_code = e.response.status_code
         param_summary = " ".join(
@@ -65,9 +111,3 @@ async def basic_scrape(
         error_message = f"Unexpected error when scraping '{url}': {e}"
         logging.error(f"basic_scrape: {error_message}", exc_info=True)
         raise ScrapeError(error_message) from e
-
-
-class ScrapeError(Exception):
-    """Raised when a scrape operation fails. Carries an actionable error message."""
-
-    pass

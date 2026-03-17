@@ -1,33 +1,50 @@
 import pytest
 import httpx
-from scraperapi_mcp_server.scrape.scrape import basic_scrape, ScrapeError
+from scraperapi_mcp_server.scrape.scrape import basic_scrape
+from scraperapi_mcp_server.scrape.models import ScrapeError, ScrapeResult
+
+
+def _mock_httpx_client(mocker, mock_response):
+    """Helper to set up an async httpx client mock."""
+    mock_client = mocker.AsyncMock()
+    mock_client.get.return_value = mock_response
+    mock_client.__aenter__ = mocker.AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = mocker.AsyncMock(return_value=False)
+    mocker.patch(
+        "scraperapi_mcp_server.scrape.scrape.httpx.AsyncClient",
+        return_value=mock_client,
+    )
+    return mock_client
+
+
+def _mock_settings(mocker, image_size_limit=1_000_000):
+    """Helper to set up settings mock."""
+    mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
+    mock_settings.API_KEY = "test_api_key"
+    mock_settings.API_URL = "https://api.scraperapi.com"
+    mock_settings.API_TIMEOUT_SECONDS = 30
+    mock_settings.IMAGE_SIZE_LIMIT_BYTES = image_size_limit
+    return mock_settings
 
 
 class TestBasicScrape:
     @pytest.mark.asyncio
     async def test_basic_scrape_success(self, mocker):
-        mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
-        mock_settings.API_KEY = "test_api_key"
-        mock_settings.API_URL = "https://api.scraperapi.com"
-        mock_settings.API_TIMEOUT_SECONDS = 30
+        _mock_settings(mocker)
 
         mock_response = mocker.Mock()
         mock_response.text = "<html><body>Test content</body></html>"
+        mock_response.content = b"<html><body>Test content</body></html>"
+        mock_response.headers = {"Content-Type": "text/html; charset=utf-8"}
         mock_response.raise_for_status.return_value = None
 
-        mock_client = mocker.AsyncMock()
-        mock_client.get.return_value = mock_response
-        mock_client.__aenter__ = mocker.AsyncMock(return_value=mock_client)
-        mock_client.__aexit__ = mocker.AsyncMock(return_value=False)
-
-        mocker.patch(
-            "scraperapi_mcp_server.scrape.scrape.httpx.AsyncClient",
-            return_value=mock_client,
-        )
+        mock_client = _mock_httpx_client(mocker, mock_response)
 
         result = await basic_scrape("https://example.com")
 
-        assert result == "<html><body>Test content</body></html>"
+        assert isinstance(result, ScrapeResult)
+        assert not result.is_image
+        assert result.text == "<html><body>Test content</body></html>"
         mock_client.get.assert_called_once_with(
             "https://api.scraperapi.com",
             params={
@@ -41,11 +58,295 @@ class TestBasicScrape:
         )
 
     @pytest.mark.asyncio
+    async def test_basic_scrape_image_response(self, mocker):
+        _mock_settings(mocker)
+
+        fake_image_bytes = b"\x89PNG\r\n\x1a\nfake-image-data"
+        mock_response = mocker.Mock()
+        mock_response.content = fake_image_bytes
+        mock_response.headers = {"Content-Type": "image/png"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/photo.png")
+
+        assert isinstance(result, ScrapeResult)
+        assert result.is_image
+        assert result.image_data == fake_image_bytes
+        assert result.mime_type == "image/png"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_jpeg_image(self, mocker):
+        _mock_settings(mocker)
+
+        fake_image_bytes = b"\xff\xd8\xff\xe0fake-jpeg-data"
+        mock_response = mocker.Mock()
+        mock_response.content = fake_image_bytes
+        mock_response.headers = {"Content-Type": "image/jpeg; charset=binary"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/photo.jpg")
+
+        assert result.is_image
+        assert result.image_data == fake_image_bytes
+        assert result.mime_type == "image/jpeg"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_image_too_large(self, mocker):
+        _mock_settings(mocker, image_size_limit=100)
+
+        large_image_bytes = b"\x89PNG" + b"\x00" * 200
+        mock_response = mocker.Mock()
+        mock_response.content = large_image_bytes
+        mock_response.headers = {"Content-Type": "image/png"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/large.png")
+
+        assert not result.is_image
+        assert "exceeds the" in result.text
+        assert "size limit" in result.text
+        assert "image/png" in result.text
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_image_within_limit(self, mocker):
+        _mock_settings(mocker)
+
+        small_image_bytes = b"\x89PNG" + b"\x00" * 50
+        mock_response = mocker.Mock()
+        mock_response.content = small_image_bytes
+        mock_response.headers = {"Content-Type": "image/png"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/small.png")
+
+        assert result.is_image
+        assert result.image_data == small_image_bytes
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_octet_stream_large(self, mocker):
+        """Large non-image binary response is returned as text (not blocked by image size limit)."""
+        _mock_settings(mocker, image_size_limit=100)
+
+        large_binary = b"\x00" * 200
+        mock_response = mocker.Mock()
+        mock_response.content = large_binary
+        mock_response.text = large_binary.decode("latin-1")
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/file.bin")
+
+        assert not result.is_image
+        assert result.text == large_binary.decode("latin-1")
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_octet_stream_small(self, mocker):
+        """Small binary response with application/octet-stream returns as text."""
+        _mock_settings(mocker)
+
+        mock_response = mocker.Mock()
+        mock_response.content = b"small data"
+        mock_response.text = "small data"
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/file.bin")
+
+        assert not result.is_image
+        assert result.text == "small data"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_text_content_type_oversized(self, mocker):
+        """Image binary returned with text/plain content type still triggers size guard."""
+        _mock_settings(mocker, image_size_limit=100)
+
+        large_binary = b"\xff\xd8\xff\xe0" + b"\x00" * 200
+        mock_response = mocker.Mock()
+        mock_response.content = large_binary
+        mock_response.text = large_binary.decode("latin-1")
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/photo.jpg")
+
+        assert not result.is_image
+        assert "exceeds the" in result.text
+        assert "size limit" in result.text
+        assert "image/jpeg" in result.text
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_small_image_with_text_content_type(self, mocker):
+        """Small image with text/plain content type is detected via magic bytes."""
+        _mock_settings(mocker)
+
+        # Valid JPEG magic bytes, small enough to be under the size limit
+        small_jpeg = b"\xff\xd8\xff\xe0" + b"\x00" * 50
+        mock_response = mocker.Mock()
+        mock_response.content = small_jpeg
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/photo.jpg")
+
+        assert result.is_image
+        assert result.image_data == small_jpeg
+        assert result.mime_type == "image/jpeg"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_small_png_with_octet_stream(self, mocker):
+        """Small PNG with application/octet-stream is detected via magic bytes."""
+        _mock_settings(mocker)
+
+        small_png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 50
+        mock_response = mocker.Mock()
+        mock_response.content = small_png
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/image.png")
+
+        assert result.is_image
+        assert result.image_data == small_png
+        assert result.mime_type == "image/png"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_bmp_detected_by_magic_bytes(self, mocker):
+        """Valid BMP with correct reserved bytes is detected as image."""
+        _mock_settings(mocker)
+
+        # BM + 4-byte file size + 4 zero reserved bytes
+        bmp_data = b"BM\x36\x00\x00\x00\x00\x00\x00\x00" + b"\x00" * 50
+        mock_response = mocker.Mock()
+        mock_response.content = bmp_data
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/image.bmp")
+
+        assert result.is_image
+        assert result.image_data == bmp_data
+        assert result.mime_type == "image/bmp"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_bm_text_not_detected_as_bmp(self, mocker):
+        """Text starting with 'BM' should not be misidentified as a BMP image."""
+        _mock_settings(mocker)
+
+        text_content = b"BM is not a bitmap file"
+        mock_response = mocker.Mock()
+        mock_response.content = text_content
+        mock_response.text = text_content.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/notes.txt")
+
+        assert not result.is_image
+        assert result.text == "BM is not a bitmap file"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_svg_with_text_content_type(self, mocker):
+        """SVG served as text/plain is detected via content inspection."""
+        _mock_settings(mocker)
+
+        svg_data = b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle r="50"/></svg>'
+        mock_response = mocker.Mock()
+        mock_response.content = svg_data
+        mock_response.text = svg_data.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/icon.svg")
+
+        assert result.is_image
+        assert result.image_data == svg_data
+        assert result.mime_type == "image/svg+xml"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_svg_with_xml_declaration(self, mocker):
+        """SVG with leading <?xml ...?> declaration is still detected."""
+        _mock_settings(mocker)
+
+        svg_data = b'<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'
+        mock_response = mocker.Mock()
+        mock_response.content = svg_data
+        mock_response.text = svg_data.decode()
+        mock_response.headers = {"Content-Type": "application/octet-stream"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/drawing.svg")
+
+        assert result.is_image
+        assert result.mime_type == "image/svg+xml"
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_xml_not_detected_as_svg(self, mocker):
+        """Generic XML that is not SVG should not be misidentified."""
+        _mock_settings(mocker)
+
+        xml_data = b'<?xml version="1.0"?>\n<root><item>hello</item></root>'
+        mock_response = mocker.Mock()
+        mock_response.content = xml_data
+        mock_response.text = xml_data.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/data.xml")
+
+        assert not result.is_image
+        assert result.text == xml_data.decode()
+
+    @pytest.mark.asyncio
+    async def test_basic_scrape_svg_too_large(self, mocker):
+        """Oversized SVG with wrong content type triggers size guard."""
+        _mock_settings(mocker, image_size_limit=100)
+
+        svg_data = b'<svg xmlns="http://www.w3.org/2000/svg">' + b"x" * 200 + b"</svg>"
+        mock_response = mocker.Mock()
+        mock_response.content = svg_data
+        mock_response.text = svg_data.decode()
+        mock_response.headers = {"Content-Type": "text/plain"}
+        mock_response.raise_for_status.return_value = None
+
+        _mock_httpx_client(mocker, mock_response)
+
+        result = await basic_scrape("https://example.com/big.svg")
+
+        assert not result.is_image
+        assert "exceeds the" in result.text
+        assert "image/svg+xml" in result.text
+
+    @pytest.mark.asyncio
     async def test_basic_scrape_error(self, mocker):
-        mock_settings = mocker.patch("scraperapi_mcp_server.scrape.scrape.settings")
-        mock_settings.API_KEY = "test_api_key"
-        mock_settings.API_URL = "https://api.scraperapi.com"
-        mock_settings.API_TIMEOUT_SECONDS = 30
+        _mock_settings(mocker)
 
         mock_client = mocker.AsyncMock()
         mock_client.get.side_effect = httpx.ConnectError("Connection failed")
