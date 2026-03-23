@@ -12,7 +12,7 @@ COPY pyproject.toml poetry.lock /app/
 
 RUN poetry install --only main --no-root --no-directory
 
-COPY README.md /app/
+COPY README.md LICENSE /app/
 COPY src/ /app/src/
 
 RUN poetry install --only main
