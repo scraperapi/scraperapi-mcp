@@ -1,14 +1,21 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_NO_INTERACTION=1
 
 WORKDIR /app
 
-COPY pyproject.toml README.md poetry.lock /app/
+RUN pip install --no-cache-dir poetry
+
+COPY pyproject.toml poetry.lock /app/
+
+RUN poetry install --only main --no-root --no-directory
+
+COPY README.md LICENSE /app/
 COPY src/ /app/src/
 
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir .
+RUN poetry install --only main
 
 # The API_KEY will be provided at runtime with docker run -e
 

@@ -2,6 +2,7 @@
 name = "scraperapi-mcp-server"
 version = "1.0.0"
 description = "ScraperAPI MCP server"
+license = "MIT"
 readme = "README.md"
 authors = ["ScraperAPI"]
 keywords = ["http", "mcp", "llm", "automation", "scraping"]
