@@ -1,0 +1,13 @@
+.git
+.gitignore
+.pytest_cache
+.python-version
+__pycache__
+*.pyc
+env
+dist
+tests
+LICENSE
+glama.json
+.dockerignore
+Dockerfile
