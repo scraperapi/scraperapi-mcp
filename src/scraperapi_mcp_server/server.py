@@ -4,7 +4,7 @@ from mcp.types import ToolAnnotations
 from scraperapi_mcp_server.scrape.models import Scrape
 from scraperapi_mcp_server.scrape.scrape import basic_scrape
 from scraperapi_mcp_server.scrape.models import ScrapeError
-from scraperapi_mcp_server.config import settings
+from scraperapi_mcp_server.config import settings, ApiKeyEnvVarNotSetError
 from scraperapi_mcp_server.utils.rate_limiter import RateLimiter, RateLimitExceededError
 import logging
 
@@ -50,6 +50,10 @@ async def scrape(params: Scrape) -> str:
     """
 
     logging.info(f"Invoking scrape tool with params: {params}")
+    try:
+        settings.validate_api_key()
+    except ApiKeyEnvVarNotSetError as e:
+        raise ToolError(str(e)) from e
     try:
         _rate_limiter.acquire()
     except RateLimitExceededError as e:

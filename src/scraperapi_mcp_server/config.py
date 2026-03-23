@@ -23,8 +23,8 @@ class Settings(BaseSettings):
         700_000  # ~700KB raw → ~933KB base64, stays under 1MB transport limit
     )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def validate_api_key(self):
+        """Validate that API_KEY is set. Call before making API requests."""
         if not self.API_KEY:
             raise ApiKeyEnvVarNotSetError(
                 "API_KEY environment variable is not set. Please set it when installing the MCP server. Check the README for more information."
