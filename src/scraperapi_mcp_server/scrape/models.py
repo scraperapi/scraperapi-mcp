@@ -45,54 +45,59 @@ class Scrape(BaseModel):
         extra="forbid",
     )
 
-    url: Annotated[AnyUrl, Field(description="URL to scrape")]
+    url: Annotated[
+        AnyUrl,
+        Field(
+            description="The full URL of the web page or image to scrape (e.g. 'https://example.com/page'). Must be a valid HTTP or HTTPS URL.",
+        ),
+    ]
     render: Annotated[
         bool,
         Field(
             default=False,
-            description="Whether to render the page using JavaScript. Set to `True` only if the page requires JavaScript rendering to display its content.",
+            description="Enable headless browser rendering for pages that load content dynamically via JavaScript. Default: false. Set to true only when the target page uses client-side rendering (e.g. SPAs, React/Angular apps) and the needed content is not in the initial HTML. Most pages do not require this. Enabling it increases response time and cost.",
         ),
     ]
     country_code: Annotated[
         Optional[str],
         Field(
             default=None,
-            description="Country code to scrape from (ISO 3166-1 alpha-2, e.g. 'us', 'gb', 'de')",
+            description="ISO 3166-1 alpha-2 country code to route the request through a proxy in that country (e.g. 'us', 'gb', 'de', 'jp'). Use this when the target website serves different content based on geographic location.",
         ),
     ]
     premium: Annotated[
         bool,
         Field(
             default=False,
-            description="Whether to use premium scraping (incompatible with ultra_premium)",
+            description="Use premium residential and mobile proxies for higher success rates on difficult-to-scrape websites. Default: false. Increases cost per request. Cannot be combined with ultra_premium.",
         ),
     ]
     ultra_premium: Annotated[
         bool,
         Field(
             default=False,
-            description="Whether to use ultra premium scraping (incompatible with premium)",
+            description="Use ultra-premium proxies and advanced anti-bot bypass mechanisms for the most protected websites. Default: false. Highest cost per request. Cannot be combined with premium.",
         ),
     ]
     device_type: Annotated[
         Optional[DeviceType],
         Field(
             default=None,
-            description="Device type to scrape from. Set request to use 'mobile' or 'desktop' user agents",
+            description="Emulate a specific device type by setting the User-Agent header. Use 'desktop' or 'mobile' when the target site serves different content or layouts based on the device. If omitted, the default User-Agent is used.",
         ),
     ]
     output_format: Annotated[
         OutputFormat,
         Field(
             default=OutputFormat.MARKDOWN,
-            description="Output format: 'text', 'markdown', 'csv' or 'json'",
+            description="Format for the scraped text output. 'markdown' (default): clean readable markdown. 'text': plain text without formatting. 'csv': comma-separated values (requires autoparse=true for structured sites). 'json': JSON object (requires autoparse=true for structured sites).",
         ),
     ]
     autoparse: Annotated[
         bool,
         Field(
             default=False,
-            description="Enable automatic parsing of the content for select websites",
+            description="Enable ScraperAPI's automatic structured data extraction for supported websites (e.g. Amazon, Google, Walmart). Default: false. When enabled, returns pre-parsed structured data. Should be set to true when using output_format 'csv' or 'json'. Has no effect on unsupported websites.",
         ),
     ]
 

@@ -26,27 +26,43 @@ _rate_limiter = RateLimiter(
     ),
 )
 async def scrape(params: Scrape) -> str:
-    """
-    Execute a web scrape using ScraperAPI with the specified parameters.
-    Supports both text and image URLs. When the target URL points to an image,
-    the image content is returned directly.
+    """Scrape a web page or image from any URL using the ScraperAPI services, bypassing anti-bot protections.
 
-    Parameters:
-        params: Scrape model containing:
-            url: Target URL to scrape (required)
-            render: Enable JavaScript rendering only when needed for dynamic content (default: False)
-                    Set to True ONLY if the content you need is missing from the initial HTML response and is loaded dynamically by JavaScript.
-                    For most websites, including many modern ones, the main content is available without JavaScript rendering.
-            country_code: Two-letter country code for geo-specific scraping
-            premium: Use premium residential/mobile proxies for higher success rate (costs more, incompatible with ultra_premium)
-            ultra_premium: Activate advanced bypass mechanisms (costs more, incompatible with premium)
-            device_type: 'mobile' or 'desktop' for device-specific user agents
-            output_format: 'text', 'markdown', 'csv' or 'json' for the output format (default: 'markdown')
-            autoparse: boolean to enable automatic parsing of the content for select websites (default: False).
-                    Set to true if the output_format is 'csv' or 'json'. Only available for certain websites.
+    Use this tool to retrieve the content of a web page or download an image from a given URL. It handles CAPTCHAs, IP blocks, and rate limits automatically via ScraperAPI's proxy infrastructure.
+
+    When to use:
+    - Extracting text content from web pages (articles, product listings, search results, etc.)
+    - Downloading images from URLs (returns the image directly if the URL points to an image file)
+    - Scraping geo-restricted content by specifying a country code
+    - Retrieving structured data (CSV/JSON) from supported websites with autoparse enabled
+
+    When NOT to use:
+    - For URLs that require authentication or login (ScraperAPI cannot access authenticated sessions)
+    - For non-HTTP resources (e.g., FTP, local files)
+    - When you already have the content and don't need to fetch it again (this tool is rate-limited)
+
+    Args:
+        params (Scrape): Validated input parameters containing:
+            - url (AnyUrl): The full URL to scrape (e.g. 'https://example.com/page')
+            - render (bool): Enable JavaScript rendering for dynamic pages (default: false)
+            - country_code (Optional[str]): ISO 3166-1 alpha-2 code for geo-targeted scraping (e.g. 'us', 'gb')
+            - premium (bool): Use premium proxies for difficult sites (default: false)
+            - ultra_premium (bool): Use ultra-premium proxies for heavily protected sites (default: false)
+            - device_type (Optional[DeviceType]): 'mobile' or 'desktop' User-Agent emulation
+            - output_format (OutputFormat): Response format — 'markdown' (default), 'text', 'csv', or 'json'
+            - autoparse (bool): Enable structured data extraction for supported sites (default: false)
 
     Returns:
-        Scraped content as text, csv or json
+        For web pages: str containing the page content in the requested output_format.
+            - 'markdown': Clean, readable markdown extracted from the page HTML
+            - 'text': Plain text without any formatting
+            - 'csv': Comma-separated values (requires autoparse=true on supported sites)
+            - 'json': JSON string (requires autoparse=true on supported sites)
+        For image URLs: Image object with binary image data (JPEG, PNG, GIF, WebP, BMP, TIFF, or SVG).
+            Images larger than ~700KB are rejected.
+
+    Raises:
+        ToolError: If the API key is not configured, rate limit is exceeded, or the scrape operation fails.
     """
 
     logging.info(f"Invoking scrape tool with params: {params}")

@@ -2,7 +2,16 @@
 
 The ScraperAPI MCP server enables LLM clients to retrieve and process web scraping requests using the ScraperAPI services.
 
+<div align="center">
+
+[![pypi package](https://img.shields.io/pypi/v/scraperapi-mcp-server?color=%2334D058&label=pypi%20package)](https://pypi.org/project/scraperapi-mcp-server/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+<br/>
+
 [![scraperapi-mcp-server MCP server](https://glama.ai/mcp/servers/scraperapi/scraperapi-mcp/badges/card.svg)](https://glama.ai/mcp/servers/scraperapi/scraperapi-mcp)
+
+</div>
 
 ## Table of Contents
 
