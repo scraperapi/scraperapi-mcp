@@ -24,6 +24,7 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
   - [Cursor](#configure-cursor-editor)
   - [Windsurf](#configure-windsurf-editor)
   - [Cline](#configure-cline-vs-code-extension)
+  - [LlamaIndex](#configure-llamaindex)
 - [Development](#development)
 
 ## Features
@@ -178,6 +179,45 @@ More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
 5. Paste [the JSON configuration file](#installation)
 
 More [here](https://docs.cline.bot/mcp/adding-and-configuring-servers#editing-configuration-files)
+
+### Configure LlamaIndex
+
+Use the [`llama-index-tools-mcp`](https://pypi.org/project/llama-index-tools-mcp/) package to connect any LlamaIndex agent to the ScraperAPI MCP server.
+
+1. Install dependencies:
+  ```bash
+  pip install scraperapi-mcp-server llama-index-tools-mcp llama-index-core llama-index-llms-openai
+  ```
+2. Start the ScraperAPI MCP server in SSE mode:**
+  ```bash
+  API_KEY=<YOUR_SCRAPERAPI_API_KEY> python -m scraperapi_mcp_server --transport sse --port 8000
+  ```
+3. Connect from your LlamaIndex agent:**
+  ```python
+  import asyncio
+  from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
+  from llama_index.core.agent.workflow import FunctionAgent
+  from llama_index.llms.openai import OpenAI
+
+  async def main():
+      # Connect to the running ScraperAPI MCP server
+      mcp_client = BasicMCPClient("http://localhost:8000/sse")
+      mcp_tool_spec = McpToolSpec(client=mcp_client)
+      tools = await mcp_tool_spec.to_tool_list_async()
+
+      agent = FunctionAgent(
+          llm=OpenAI(model="gpt-4o"),
+          tools=tools,
+          system_prompt="You are a web scraping assistant powered by ScraperAPI."
+      )
+
+      response = await agent.run("Scrape https://example.com and summarize the content.")
+      print(response)
+
+  asyncio.run(main())
+  ```
+
+More information: [LlamaIndex MCP Integration Docs](https://developers.llamaindex.ai/python/framework/module_guides/mcp/llamaindex_mcp/)
 
 ## Development
 
