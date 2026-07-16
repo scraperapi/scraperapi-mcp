@@ -268,7 +268,7 @@ Returns: the scraped content as a string, or image data for image URLs.
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|
 | `asin` | string | 10-character Amazon product identifier | Yes |
-| `condition` | string | Comma-separated condition filters (e.g. `f_new,f_usedLikeNew`) | No |
+| `condition` | string | Comma-separated condition filters (e.g. `f_new,f_usedlikenew,f_usedverygood,f_usedgood,f_usedacceptable`) | No |
 | `f_new` | boolean | Include only New-condition offers | No |
 | `f_used_like_new` | boolean | Include Used - Like New offers | No |
 | `f_used_very_good` | boolean | Include Used - Very Good offers | No |
@@ -277,6 +277,62 @@ Returns: the scraped content as a string, or image data for image URLs.
 | `language` | string | Language code for localized content | No |
 | `output_format` | string | `json` (default) or `csv` | No |
 | `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+#### Walmart
+
+<details>
+<summary><strong>walmart_search</strong> — Parsed Walmart product search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Product search query, as typed into Walmart | Yes |
+| `page` | integer | 1-based results page number | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>walmart_product</strong> — Parsed Walmart product details by product ID</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `product_id` | string | Walmart product ID | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>walmart_category</strong> — Parsed products within a Walmart category</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `category` | string | Walmart category ID | Yes |
+| `page` | integer | 1-based results page number | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>walmart_review</strong> — Parsed customer reviews for a Walmart product</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `product_id` | string | Walmart product ID | Yes |
+| `page` | integer | 1-based results page number | No |
+| `sort` | string | Sort order (e.g. `helpful`, `recent`) | No |
+| `ratings` | string | Comma-separated star ratings to filter by (e.g. `4,5`) | No |
+| `verified_purchase` | string | Pass `true` to include only verified-purchase reviews | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
 | `country_code` | string | ISO 2-letter country code for geo-targeting | No |
 
 </details>

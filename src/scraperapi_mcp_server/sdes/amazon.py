@@ -97,7 +97,7 @@ class AmazonOffersParams(_AmazonBaseParams):
         Optional[str],
         Field(
             default=None,
-            description="Comma-separated condition filters as an alternative to the individual f_* flags (e.g. 'f_new,f_usedLikeNew'). Limits offers to the given conditions.",
+            description="Comma-separated condition filters as an alternative to the individual f_* flags (e.g. 'f_new,f_usedlikenew,f_usedverygood,f_usedgood,f_usedacceptable'). Limits offers to the given conditions.",
         ),
     ]
     f_new: Annotated[
@@ -111,7 +111,6 @@ class AmazonOffersParams(_AmazonBaseParams):
         Optional[bool],
         Field(
             default=None,
-            serialization_alias="f_usedLikeNew",
             description="When true, include Used - Like New condition offers.",
         ),
     ]
@@ -119,7 +118,6 @@ class AmazonOffersParams(_AmazonBaseParams):
         Optional[bool],
         Field(
             default=None,
-            serialization_alias="f_usedVeryGood",
             description="When true, include Used - Very Good condition offers.",
         ),
     ]
@@ -127,7 +125,6 @@ class AmazonOffersParams(_AmazonBaseParams):
         Optional[bool],
         Field(
             default=None,
-            serialization_alias="f_usedGood",
             description="When true, include Used - Good condition offers.",
         ),
     ]
@@ -135,7 +132,6 @@ class AmazonOffersParams(_AmazonBaseParams):
         Optional[bool],
         Field(
             default=None,
-            serialization_alias="f_usedAcceptable",
             description="When true, include Used - Acceptable condition offers.",
         ),
     ]

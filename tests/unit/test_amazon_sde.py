@@ -45,7 +45,7 @@ class TestAmazonSearchParams:
 
 
 class TestAmazonOffersParams:
-    def test_condition_filter_aliases(self):
+    def test_condition_filters_serialized_snake_case(self):
         params = AmazonOffersParams(
             asin=VALID_ASIN,
             f_new=True,
@@ -54,15 +54,12 @@ class TestAmazonOffersParams:
         )
         result = params.query_params()
         assert result["f_new"] == "true"
-        assert result["f_usedLikeNew"] == "true"
-        assert result["f_usedVeryGood"] == "false"
-        # snake_case field names must not leak to the wire
-        assert "f_used_like_new" not in result
-        assert "f_used_very_good" not in result
+        assert result["f_used_like_new"] == "true"
+        assert result["f_used_very_good"] == "false"
 
     def test_condition_string_passthrough(self):
-        params = AmazonOffersParams(asin=VALID_ASIN, condition="f_new,f_usedLikeNew")
-        assert params.query_params()["condition"] == "f_new,f_usedLikeNew"
+        params = AmazonOffersParams(asin=VALID_ASIN, condition="f_new,f_usedlikenew")
+        assert params.query_params()["condition"] == "f_new,f_usedlikenew"
 
 
 class TestAmazonToolDispatch:
