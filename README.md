@@ -337,6 +337,39 @@ Returns: the scraped content as a string, or image data for image URLs.
 
 </details>
 
+#### eBay
+
+<details>
+<summary><strong>ebay_search</strong> — Parsed eBay product search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search keywords | Yes |
+| `page` | integer | 1-based results page number | No |
+| `items_per_page` | integer | Number of items per page | No |
+| `seller_id` | string | Restrict results to a specific seller | No |
+| `condition` | string | Comma-separated: `new`, `used`, `open_box`, `refurbished`, `for_parts`, `not_working` | No |
+| `buying_format` | string | `buy_it_now`, `auction`, or `accepts_offers` | No |
+| `show_only` | string | Comma-separated: `returns_accepted`, `authorized_seller`, `completed_items`, `sold_items`, `sale_items`, `listed_as_lots`, `search_in_description`, `benefits_charity`, `authenticity_guarantee` | No |
+| `sort_by` | string | `best_match`, `ending_soonest`, `newly_listed`, `price_lowest`, `price_highest`, or `distance_nearest` | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | eBay TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>ebay_product</strong> — Parsed eBay listing details by item ID</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `product_id` | string | eBay item ID | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | eBay TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
 ### Prompt templates
 
 - Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.

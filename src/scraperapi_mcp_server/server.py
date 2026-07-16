@@ -10,6 +10,7 @@ from scraperapi_mcp_server.execution import rate_limiter as _rate_limiter
 from scraperapi_mcp_server.sdes.google import register_google_tools
 from scraperapi_mcp_server.sdes.amazon import register_amazon_tools
 from scraperapi_mcp_server.sdes.walmart import register_walmart_tools
+from scraperapi_mcp_server.sdes.ebay import register_ebay_tools
 import logging
 
 mcp = FastMCP("ScraperAPI")
@@ -17,6 +18,7 @@ mcp = FastMCP("ScraperAPI")
 register_google_tools(mcp)
 register_amazon_tools(mcp)
 register_walmart_tools(mcp)
+register_ebay_tools(mcp)
 
 
 @mcp.tool(
