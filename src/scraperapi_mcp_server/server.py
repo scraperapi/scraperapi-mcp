@@ -5,15 +5,14 @@ from scraperapi_mcp_server.scrape.models import Scrape
 from scraperapi_mcp_server.scrape.scrape import basic_scrape
 from scraperapi_mcp_server.scrape.models import ScrapeError
 from scraperapi_mcp_server.config import settings, ApiKeyEnvVarNotSetError
-from scraperapi_mcp_server.utils.rate_limiter import RateLimiter, RateLimitExceededError
+from scraperapi_mcp_server.utils.rate_limiter import RateLimitExceededError
+from scraperapi_mcp_server.execution import rate_limiter as _rate_limiter
+from scraperapi_mcp_server.sdes.google import register_google_tools
 import logging
 
 mcp = FastMCP("ScraperAPI")
 
-_rate_limiter = RateLimiter(
-    max_calls=settings.RATE_LIMIT_MAX_CALLS,
-    window_seconds=settings.RATE_LIMIT_WINDOW_SECONDS,
-)
+register_google_tools(mcp)
 
 
 @mcp.tool(
