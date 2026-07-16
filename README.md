@@ -2,6 +2,8 @@
 
 The ScraperAPI MCP server enables LLM clients to retrieve and process web scraping requests using the ScraperAPI services.
 
+This is the self-hosted (local) server. A [hosted (remote) version](https://docs.scraperapi.com/integrations/llm-integrations/mcp-server/hosted-remote) is also available.
+
 <div align="center">
 
 [![pypi package](https://img.shields.io/pypi/v/scraperapi-mcp-server?color=%2334D058&label=pypi%20package)](https://pypi.org/project/scraperapi-mcp-server/)
@@ -20,11 +22,8 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
 - [Installation](#installation)
 - [API Reference](#api-reference)
 - [Configuration](#configuration)
-  - [Claude Desktop App & Claude Code](#configure-claude-desktop-app--claude-code)
-  - [Cursor](#configure-cursor-editor)
-  - [Windsurf](#configure-windsurf-editor)
-  - [Cline](#configure-cline-vs-code-extension)
-  - [LlamaIndex](#configure-llamaindex)
+  - [Settings](#settings)
+  - [Client Setup](#client-setup)
 - [Development](#development)
 
 ## Features
@@ -107,95 +106,180 @@ Add this to your client configuration file:
 >    which <YOUR_COMMAND>
 >    ```
 
-## API Reference
+## Available tools
 
-### Available Tools
+### API
 
-- `scrape`
-  - Scrape a URL from the internet using ScraperAPI
-  - Parameters:
-    - `url` (string, required): URL to scrape
-    - `render` (boolean, optional): Whether to render the page using JavaScript. Defaults to `False`. Set to `True` only if the page requires JavaScript rendering to display its content.
-    - `country_code` (string, optional): Activate country geotargeting (ISO 2-letter code)
-    - `premium` (boolean, optional): Activate premium residential and mobile IPs
-    - `ultra_premium` (boolean, optional): Activate advanced bypass mechanisms. Can not combine with `premium`
-    - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
-    - `output_format` (string, optional): Allows you to instruct the API on what the response file type should be.
-    - `autoparse` (boolean, optional): Activate auto parsing for select websites. Defaults to `False`. Set to `True` only if you want the output format in `csv` or `json`.
-  - Returns: The scraped content as a string
+Structured Data Endpoints (SDEs) return pre-parsed JSON (or CSV) instead of raw HTML. Every SDE tool also accepts `output_format` (`json` by default, or `csv`), `tld`, and `country_code`, shown in each tool's table.
 
-#### Structured Data Endpoints (SDEs)
+<details>
+<summary><strong>scrape</strong> — Scrape any web page or image, bypassing anti-bot protection</summary>
 
-These tools return pre-parsed structured data (no HTML parsing required). Every SDE tool also accepts the following common parameters:
+Retrieve the content of a web page, or download an image, from a URL.
 
-- `output_format` (string, optional): `json` (default) or `csv`.
-- `tld` (string, optional): Top-level domain of the target site to query (e.g. `com`, `co.uk`, `de`).
-- `country_code` (string, optional): ISO 2-letter country code for geo-targeting (e.g. `us`, `gb`).
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Target URL to scrape | Yes |
+| `render` | boolean | Enable JavaScript rendering for dynamic pages (default: `false`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+| `premium` | boolean | Use premium residential/mobile proxies (default: `false`) | No |
+| `ultra_premium` | boolean | Advanced anti-bot bypass; incompatible with `premium` (default: `false`) | No |
+| `device_type` | string | `mobile` or `desktop` user agent | No |
+| `output_format` | string | `markdown` (default), `text`, `csv`, or `json` | No |
+| `autoparse` | boolean | Auto-parse supported sites into structured data (default: `false`) | No |
 
-**Google:**
+Returns: the scraped content as a string, or image data for image URLs.
 
-- `google_search`
-  - Retrieve parsed Google Search (SERP) results for a query
-  - Parameters:
-    - `query` (string, required): The search query, as typed into Google
-    - `num` (integer, optional): Number of results to return on the page
-    - `start` (integer, optional): Zero-based result offset for pagination
-    - `hl` (string, optional): Interface/host language code (e.g. `en`, `es`)
-    - `gl` (string, optional): Country edition to search (2-letter code)
-    - `uule` (string, optional): Google `uule` geolocation string (advanced)
-    - `date_range_start` (string, optional): Start of a custom date range, `MM/DD/YYYY`
-    - `date_range_end` (string, optional): End of a custom date range, `MM/DD/YYYY`
-    - `time_period` (string, optional): Restrict to a recent window: `1H`, `1D`, `1W`, `1M`, or `1Y`
-    - `include_html` (boolean, optional): Include the raw HTML alongside parsed data. Defaults to `False`
-    - `tbs` (string, optional): Raw Google `tbs` filter parameter (advanced)
-  - Returns: Structured search results as a string (`json` or `csv`)
+</details>
 
-- `google_news`
-  - Retrieve parsed Google News results for a query
-  - Parameters:
-    - `query` (string, required): The search query
-    - `num` (integer, optional): Number of results to return on the page
-    - `start` (integer, optional): Zero-based result offset for pagination
-    - `hl` (string, optional): Interface/host language code
-    - `gl` (string, optional): Country edition to search (2-letter code)
-    - `uule` (string, optional): Google `uule` geolocation string (advanced)
-    - `date_range_start` (string, optional): Start of a custom date range, `MM/DD/YYYY`
-    - `date_range_end` (string, optional): End of a custom date range, `MM/DD/YYYY`
-    - `time_period` (string, optional): Restrict to a recent window: `1H`, `1D`, `1W`, `1M`, or `1Y`
-  - Returns: Structured news results as a string (`json` or `csv`)
+### SDEs
 
-- `google_jobs`
-  - Retrieve parsed Google Jobs listings for a query
-  - Parameters:
-    - `query` (string, required): The search query
-    - `num` (integer, optional): Number of results to return on the page
-    - `start` (integer, optional): Zero-based result offset for pagination
-    - `hl` (string, optional): Interface/host language code
-    - `gl` (string, optional): Country edition to search (2-letter code)
-    - `uule` (string, optional): Google `uule` geolocation string (advanced)
-  - Returns: Structured job listings as a string (`json` or `csv`)
+#### Google
 
-- `google_shopping`
-  - Retrieve parsed Google Shopping product results for a query
-  - Parameters:
-    - `query` (string, required): The search query
-    - `num` (integer, optional): Number of results to return on the page
-    - `start` (integer, optional): Zero-based result offset for pagination
-    - `hl` (string, optional): Interface/host language code
-    - `gl` (string, optional): Country edition to search (2-letter code)
-    - `uule` (string, optional): Google `uule` geolocation string (advanced)
-    - `include_html` (boolean, optional): Include the raw HTML alongside parsed data. Defaults to `False`
-  - Returns: Structured shopping results as a string (`json` or `csv`)
+<details>
+<summary><strong>google_search</strong> — Parsed Google Search (SERP) results</summary>
 
-- `google_maps_search`
-  - Retrieve parsed Google Maps place/business results for a query
-  - Parameters:
-    - `query` (string, required): The search query (e.g. `coffee shops in Austin`)
-    - `latitude` (number, optional): Latitude of the map center, in decimal degrees
-    - `longitude` (number, optional): Longitude of the map center, in decimal degrees
-    - `zoom` (integer, optional): Map zoom level (roughly 3=country, 10=city, 15=street)
-    - `include_html` (boolean, optional): Include the raw HTML alongside parsed data. Defaults to `False`
-  - Returns: Structured maps results as a string (`json` or `csv`)
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query, as typed into Google | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code (e.g. `en`, `es`) | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `date_range_start` | string | Start of a custom date range, `MM/DD/YYYY` | No |
+| `date_range_end` | string | End of a custom date range, `MM/DD/YYYY` | No |
+| `time_period` | string | Recent window: `1H`, `1D`, `1W`, `1M`, or `1Y` | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `tbs` | string | Raw Google `tbs` filter parameter (advanced) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_news</strong> — Parsed Google News results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `date_range_start` | string | Start of a custom date range, `MM/DD/YYYY` | No |
+| `date_range_end` | string | End of a custom date range, `MM/DD/YYYY` | No |
+| `time_period` | string | Recent window: `1H`, `1D`, `1W`, `1M`, or `1Y` | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_jobs</strong> — Parsed Google Jobs listings</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_shopping</strong> — Parsed Google Shopping product results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_maps_search</strong> — Parsed Google Maps place/business results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query (e.g. `coffee shops in Austin`) | Yes |
+| `latitude` | number | Latitude of the map center, in decimal degrees | No |
+| `longitude` | number | Longitude of the map center, in decimal degrees | No |
+| `zoom` | integer | Map zoom level (roughly 3=country, 10=city, 15=street) | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+#### Amazon
+
+<details>
+<summary><strong>amazon_product</strong> — Parsed Amazon product details by ASIN</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `asin` | string | 10-character Amazon product identifier (e.g. `B08N5WRWNW`) | Yes |
+| `language` | string | Language code for localized content (e.g. `en_US`) | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>amazon_search</strong> — Parsed Amazon product search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query, as typed into Amazon | Yes |
+| `page` | integer | 1-based results page number | No |
+| `sort_by` | string | Sort order (e.g. `price-asc-rank`, `review-rank`) | No |
+| `department` | string | Restrict search to a department/category (e.g. `electronics`) | No |
+| `ref` | string | Amazon `ref` referral/context token (advanced) | No |
+| `language` | string | Language code for localized content | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>amazon_offers</strong> — Parsed seller offers for an Amazon product</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `asin` | string | 10-character Amazon product identifier | Yes |
+| `condition` | string | Comma-separated condition filters (e.g. `f_new,f_usedLikeNew`) | No |
+| `f_new` | boolean | Include only New-condition offers | No |
+| `f_used_like_new` | boolean | Include Used - Like New offers | No |
+| `f_used_very_good` | boolean | Include Used - Very Good offers | No |
+| `f_used_good` | boolean | Include Used - Good offers | No |
+| `f_used_acceptable` | boolean | Include Used - Acceptable offers | No |
+| `language` | string | Language code for localized content | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
 
 ### Prompt templates
 
@@ -206,9 +290,24 @@ These tools return pre-parsed structured data (no HTML parsing required). Every 
 
 ### Settings
 
-- `API_KEY`: Your ScraperAPI API key.
+Configure the server through environment variables. Only `API_KEY` is required.
 
-### Configure Claude Desktop App & Claude Code
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `API_KEY` | — | **Required.** Your ScraperAPI API key. |
+| `API_URL` | `https://api.scraperapi.com` | Base URL for the ScraperAPI API and structured-data endpoints. Override to target staging. |
+| `SCRAPER_SDK` | `mcp-server` | Client identifier sent to ScraperAPI on every request. |
+| `API_TIMEOUT_SECONDS` | `70` | Per-request timeout, in seconds. |
+| `RATE_LIMIT_MAX_CALLS` | `10` | Maximum tool calls allowed per rate-limit window. |
+| `RATE_LIMIT_WINDOW_SECONDS` | `60` | Length of the rate-limit window, in seconds. |
+| `IMAGE_SIZE_LIMIT_BYTES` | `700000` | Maximum size of an image the `scrape` tool returns inline. |
+
+### Client Setup
+
+Use [the JSON configuration file](#installation) from the Installation section. Below are steps for common clients.
+
+<details>
+<summary><strong>Claude Desktop & Claude Code</strong></summary>
 
 **Claude Desktop:**
 1. Open Claude Desktop and click the settings icon
@@ -221,18 +320,24 @@ These tools return pre-parsed structured data (no HTML parsing required). Every 
    claude mcp add scraperapi -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> -- python -m scraperapi_mcp_server
    ```
 
-### Configure Cursor Editor
+</details>
+
+<details>
+<summary><strong>Cursor Editor</strong></summary>
 
 1. Open Cursor
 2. Access the Settings Menu
-3. Open Cursor Settings 
+3. Open Cursor Settings
 4. Go to Tools & Integrations section
 5. Click '+ Add MCP Server'
 6. Choose Manual and paste [the JSON configuration file](#installation)
 
 More [here](https://cursor.com/docs/context/mcp#servers)
 
-### Configure Windsurf Editor
+</details>
+
+<details>
+<summary><strong>Windsurf Editor</strong></summary>
 
 1. Open Windsurf
 2. Access the Settings Menu
@@ -243,7 +348,10 @@ More [here](https://cursor.com/docs/context/mcp#servers)
 
 More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
 
-### Configure Cline (VS code extension)
+</details>
+
+<details>
+<summary><strong>Cline (VS Code extension)</strong></summary>
 
 1. Open VS Code and click the Cline icon in the activity bar to open the Cline panel
 2. Click the MCP Servers icon in the top navigation bar of the Cline pane
@@ -253,44 +361,7 @@ More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
 
 More [here](https://docs.cline.bot/mcp/adding-and-configuring-servers#editing-configuration-files)
 
-### Configure LlamaIndex
-
-Use the [`llama-index-tools-mcp`](https://pypi.org/project/llama-index-tools-mcp/) package to connect any LlamaIndex agent to the ScraperAPI MCP server.
-
-1. Install dependencies:
-  ```bash
-  pip install scraperapi-mcp-server llama-index-tools-mcp llama-index-core llama-index-llms-openai
-  ```
-2. Start the ScraperAPI MCP server in SSE mode:**
-  ```bash
-  API_KEY=<YOUR_SCRAPERAPI_API_KEY> python -m scraperapi_mcp_server --transport sse --port 8000
-  ```
-3. Connect from your LlamaIndex agent:**
-  ```python
-  import asyncio
-  from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
-  from llama_index.core.agent.workflow import FunctionAgent
-  from llama_index.llms.openai import OpenAI
-
-  async def main():
-      # Connect to the running ScraperAPI MCP server
-      mcp_client = BasicMCPClient("http://localhost:8000/sse")
-      mcp_tool_spec = McpToolSpec(client=mcp_client)
-      tools = await mcp_tool_spec.to_tool_list_async()
-
-      agent = FunctionAgent(
-          llm=OpenAI(model="gpt-4o"),
-          tools=tools,
-          system_prompt="You are a web scraping assistant powered by ScraperAPI."
-      )
-
-      response = await agent.run("Scrape https://example.com and summarize the content.")
-      print(response)
-
-  asyncio.run(main())
-  ```
-
-More information: [LlamaIndex MCP Integration Docs](https://developers.llamaindex.ai/python/framework/module_guides/mcp/llamaindex_mcp/)
+</details>
 
 ## Development
 

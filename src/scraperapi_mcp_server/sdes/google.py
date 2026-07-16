@@ -8,20 +8,10 @@ from enum import Enum
 from typing import Annotated, Optional
 
 from mcp.server.fastmcp import FastMCP
-from mcp.types import ToolAnnotations
 from pydantic import Field
 
 from scraperapi_mcp_server.execution import run_sde
-from scraperapi_mcp_server.sdes.base import BaseSdeParams
-
-# Structured-data endpoints are read-only external lookups: safe to repeat, no
-# side effects, and they reach the open web.
-_SDE_ANNOTATIONS = ToolAnnotations(
-    readOnlyHint=True,
-    destructiveHint=False,
-    idempotentHint=True,
-    openWorldHint=True,
-)
+from scraperapi_mcp_server.sdes.base import SDE_TOOL_ANNOTATIONS, BaseSdeParams
 
 
 class GoogleTimePeriod(str, Enum):
@@ -198,7 +188,7 @@ class GoogleMapsSearchParams(_GoogleQueryParams):
 def register_google_tools(mcp: FastMCP) -> None:
     """Register all Google structured-data tools on the given MCP server."""
 
-    @mcp.tool(name="google_search", annotations=_SDE_ANNOTATIONS)
+    @mcp.tool(name="google_search", annotations=SDE_TOOL_ANNOTATIONS)
     async def google_search(params: GoogleSearchParams) -> str:
         """Retrieve parsed Google Search (SERP) results for a query.
 
@@ -230,7 +220,7 @@ def register_google_tools(mcp: FastMCP) -> None:
         """
         return await run_sde("/structured/google/search", params)
 
-    @mcp.tool(name="google_news", annotations=_SDE_ANNOTATIONS)
+    @mcp.tool(name="google_news", annotations=SDE_TOOL_ANNOTATIONS)
     async def google_news(params: GoogleNewsParams) -> str:
         """Retrieve parsed Google News results for a query.
 
@@ -259,7 +249,7 @@ def register_google_tools(mcp: FastMCP) -> None:
         """
         return await run_sde("/structured/google/news", params)
 
-    @mcp.tool(name="google_jobs", annotations=_SDE_ANNOTATIONS)
+    @mcp.tool(name="google_jobs", annotations=SDE_TOOL_ANNOTATIONS)
     async def google_jobs(params: GoogleJobsParams) -> str:
         """Retrieve parsed Google Jobs listings for a query.
 
@@ -287,7 +277,7 @@ def register_google_tools(mcp: FastMCP) -> None:
         """
         return await run_sde("/structured/google/jobs", params)
 
-    @mcp.tool(name="google_shopping", annotations=_SDE_ANNOTATIONS)
+    @mcp.tool(name="google_shopping", annotations=SDE_TOOL_ANNOTATIONS)
     async def google_shopping(params: GoogleShoppingParams) -> str:
         """Retrieve parsed Google Shopping product results for a query.
 
@@ -315,7 +305,7 @@ def register_google_tools(mcp: FastMCP) -> None:
         """
         return await run_sde("/structured/google/shopping", params)
 
-    @mcp.tool(name="google_maps_search", annotations=_SDE_ANNOTATIONS)
+    @mcp.tool(name="google_maps_search", annotations=SDE_TOOL_ANNOTATIONS)
     async def google_maps_search(params: GoogleMapsSearchParams) -> str:
         """Retrieve parsed Google Maps place/business results for a query.
 

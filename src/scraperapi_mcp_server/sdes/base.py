@@ -3,10 +3,20 @@
 from enum import Enum
 from typing import Annotated, Any, Optional
 
+from mcp.types import ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
 
 from scraperapi_mcp_server.config import settings
 from scraperapi_mcp_server.utils import http
+
+# Structured-data endpoints are read-only external lookups: safe to repeat, no
+# side effects, and they reach the open web. Shared by every SDE tool.
+SDE_TOOL_ANNOTATIONS = ToolAnnotations(
+    readOnlyHint=True,
+    destructiveHint=False,
+    idempotentHint=True,
+    openWorldHint=True,
+)
 
 
 class SdeOutputFormat(str, Enum):

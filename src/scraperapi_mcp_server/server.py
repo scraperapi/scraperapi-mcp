@@ -8,11 +8,13 @@ from scraperapi_mcp_server.config import settings, ApiKeyEnvVarNotSetError
 from scraperapi_mcp_server.utils.rate_limiter import RateLimitExceededError
 from scraperapi_mcp_server.execution import rate_limiter as _rate_limiter
 from scraperapi_mcp_server.sdes.google import register_google_tools
+from scraperapi_mcp_server.sdes.amazon import register_amazon_tools
 import logging
 
 mcp = FastMCP("ScraperAPI")
 
 register_google_tools(mcp)
+register_amazon_tools(mcp)
 
 
 @mcp.tool(
