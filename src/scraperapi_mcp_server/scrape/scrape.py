@@ -101,13 +101,13 @@ async def basic_scrape(
             f"{k}={v}" for k, v in payload.items() if k != "api_key"
         )
         error_message = f"HTTP error {status_code} when scraping '{url}'. Parameters used: {param_summary}"
-        logging.error(f"basic_scrape: {error_message}", exc_info=True)
+        logging.exception(f"basic_scrape: {error_message}")
         raise ScrapeError(error_message) from e
     except httpx.RequestError as e:
         error_message = f"Connection error when scraping '{url}': {e}"
-        logging.error(f"basic_scrape: {error_message}", exc_info=True)
+        logging.exception(f"basic_scrape: {error_message}")
         raise ScrapeError(error_message) from e
     except Exception as e:
         error_message = f"Unexpected error when scraping '{url}': {e}"
-        logging.error(f"basic_scrape: {error_message}", exc_info=True)
+        logging.exception(f"basic_scrape: {error_message}")
         raise ScrapeError(error_message) from e
