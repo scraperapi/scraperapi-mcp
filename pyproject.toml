@@ -14,7 +14,7 @@ packages = [{include = "scraperapi_mcp_server", from = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.11"
-mcp = {extras = ["cli"], version = "^1.26.0"}
+mcp = {extras = ["cli"], version = "^1.28.0"}
 pydantic = "^2.12.5"
 pydantic-settings = "^2.13.1"
 httpx = "^0.28.1"
