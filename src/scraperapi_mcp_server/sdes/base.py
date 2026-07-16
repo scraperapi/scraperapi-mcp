@@ -56,14 +56,21 @@ class BaseSdeParams(BaseModel):
         """Serialize the set fields to a query dict for the ScraperAPI request.
 
         Unset (``None``) fields are omitted, enum values are unwrapped to their
-        underlying string, and fields are emitted under their serialization
-        alias when one is defined.
+        underlying string, booleans are rendered as the lowercase ``"true"`` /
+        ``"false"`` the API expects, and fields are emitted under their
+        serialization alias when one is defined.
         """
         data = self.model_dump(by_alias=True, exclude_none=True)
-        return {
-            key: (value.value if isinstance(value, Enum) else value)
-            for key, value in data.items()
-        }
+        return {key: _serialize_value(value) for key, value in data.items()}
+
+
+def _serialize_value(value: Any) -> Any:
+    """Coerce a single value into its ScraperAPI query-string representation."""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, Enum):
+        return value.value
+    return value
 
 
 async def fetch_sde(path: str, params: BaseSdeParams) -> str:

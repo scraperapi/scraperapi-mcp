@@ -124,6 +124,79 @@ Add this to your client configuration file:
     - `autoparse` (boolean, optional): Activate auto parsing for select websites. Defaults to `False`. Set to `True` only if you want the output format in `csv` or `json`.
   - Returns: The scraped content as a string
 
+#### Structured Data Endpoints (SDEs)
+
+These tools return pre-parsed structured data (no HTML parsing required). Every SDE tool also accepts the following common parameters:
+
+- `output_format` (string, optional): `json` (default) or `csv`.
+- `tld` (string, optional): Top-level domain of the target site to query (e.g. `com`, `co.uk`, `de`).
+- `country_code` (string, optional): ISO 2-letter country code for geo-targeting (e.g. `us`, `gb`).
+
+**Google:**
+
+- `google_search`
+  - Retrieve parsed Google Search (SERP) results for a query
+  - Parameters:
+    - `query` (string, required): The search query, as typed into Google
+    - `num` (integer, optional): Number of results to return on the page
+    - `start` (integer, optional): Zero-based result offset for pagination
+    - `hl` (string, optional): Interface/host language code (e.g. `en`, `es`)
+    - `gl` (string, optional): Country edition to search (2-letter code)
+    - `uule` (string, optional): Google `uule` geolocation string (advanced)
+    - `date_range_start` (string, optional): Start of a custom date range, `MM/DD/YYYY`
+    - `date_range_end` (string, optional): End of a custom date range, `MM/DD/YYYY`
+    - `time_period` (string, optional): Restrict to a recent window: `1H`, `1D`, `1W`, `1M`, or `1Y`
+    - `include_html` (boolean, optional): Include the raw HTML alongside parsed data. Defaults to `False`
+    - `tbs` (string, optional): Raw Google `tbs` filter parameter (advanced)
+  - Returns: Structured search results as a string (`json` or `csv`)
+
+- `google_news`
+  - Retrieve parsed Google News results for a query
+  - Parameters:
+    - `query` (string, required): The search query
+    - `num` (integer, optional): Number of results to return on the page
+    - `start` (integer, optional): Zero-based result offset for pagination
+    - `hl` (string, optional): Interface/host language code
+    - `gl` (string, optional): Country edition to search (2-letter code)
+    - `uule` (string, optional): Google `uule` geolocation string (advanced)
+    - `date_range_start` (string, optional): Start of a custom date range, `MM/DD/YYYY`
+    - `date_range_end` (string, optional): End of a custom date range, `MM/DD/YYYY`
+    - `time_period` (string, optional): Restrict to a recent window: `1H`, `1D`, `1W`, `1M`, or `1Y`
+  - Returns: Structured news results as a string (`json` or `csv`)
+
+- `google_jobs`
+  - Retrieve parsed Google Jobs listings for a query
+  - Parameters:
+    - `query` (string, required): The search query
+    - `num` (integer, optional): Number of results to return on the page
+    - `start` (integer, optional): Zero-based result offset for pagination
+    - `hl` (string, optional): Interface/host language code
+    - `gl` (string, optional): Country edition to search (2-letter code)
+    - `uule` (string, optional): Google `uule` geolocation string (advanced)
+  - Returns: Structured job listings as a string (`json` or `csv`)
+
+- `google_shopping`
+  - Retrieve parsed Google Shopping product results for a query
+  - Parameters:
+    - `query` (string, required): The search query
+    - `num` (integer, optional): Number of results to return on the page
+    - `start` (integer, optional): Zero-based result offset for pagination
+    - `hl` (string, optional): Interface/host language code
+    - `gl` (string, optional): Country edition to search (2-letter code)
+    - `uule` (string, optional): Google `uule` geolocation string (advanced)
+    - `include_html` (boolean, optional): Include the raw HTML alongside parsed data. Defaults to `False`
+  - Returns: Structured shopping results as a string (`json` or `csv`)
+
+- `google_maps_search`
+  - Retrieve parsed Google Maps place/business results for a query
+  - Parameters:
+    - `query` (string, required): The search query (e.g. `coffee shops in Austin`)
+    - `latitude` (number, optional): Latitude of the map center, in decimal degrees
+    - `longitude` (number, optional): Longitude of the map center, in decimal degrees
+    - `zoom` (integer, optional): Map zoom level (roughly 3=country, 10=city, 15=street)
+    - `include_html` (boolean, optional): Include the raw HTML alongside parsed data. Defaults to `False`
+  - Returns: Structured maps results as a string (`json` or `csv`)
+
 ### Prompt templates
 
 - Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.
