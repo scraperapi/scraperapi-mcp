@@ -11,6 +11,7 @@ from scraperapi_mcp_server.sdes.google import register_google_tools
 from scraperapi_mcp_server.sdes.amazon import register_amazon_tools
 from scraperapi_mcp_server.sdes.walmart import register_walmart_tools
 from scraperapi_mcp_server.sdes.ebay import register_ebay_tools
+from scraperapi_mcp_server.sdes.redfin import register_redfin_tools
 import logging
 
 mcp = FastMCP("ScraperAPI")
@@ -19,6 +20,7 @@ register_google_tools(mcp)
 register_amazon_tools(mcp)
 register_walmart_tools(mcp)
 register_ebay_tools(mcp)
+register_redfin_tools(mcp)
 
 
 @mcp.tool(

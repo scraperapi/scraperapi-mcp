@@ -370,6 +370,60 @@ Returns: the scraped content as a string, or image data for image URLs.
 
 </details>
 
+#### Redfin
+
+Every Redfin tool takes a full Redfin URL matching the tool (property, search, or agent page).
+
+<details>
+<summary><strong>redfin_for_sale</strong> — Parsed Redfin listing data for a home for sale</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin for-sale property URL | Yes |
+| `raw` | boolean | Return raw extracted JSON instead of parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>redfin_for_rent</strong> — Parsed Redfin listing data for a rental property</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin rental property URL | Yes |
+| `raw` | boolean | Return raw extracted JSON instead of parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>redfin_search</strong> — Parsed Redfin search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin search-results URL (with filters) | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>redfin_agent</strong> — Parsed Redfin real-estate agent profile data</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin agent profile URL | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
 ### Prompt templates
 
 - Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.
