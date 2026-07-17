@@ -88,6 +88,13 @@ def register_crawler_tools(mcp: FastMCP) -> None:
         letting you track progress and detect completion. Poll this after
         'crawler_job_start' until the job is finished.
 
+        When to use:
+        - Tracking progress or detecting completion of a job from 'crawler_job_start'
+
+        When NOT to use:
+        - Retrieving the crawled page contents (those are delivered to the job's
+          callback_url webhook, not returned here)
+
         Args:
             params (CrawlerJobRefParams): job_id (required) — the id returned by
                 crawler_job_start.
@@ -109,6 +116,12 @@ def register_crawler_tools(mcp: FastMCP) -> None:
 
         Irreversibly cancels a running crawl job and removes it. Use this to stop a
         crawl you no longer need.
+
+        When to use:
+        - Stopping a running crawl you started and no longer want
+
+        When NOT to use:
+        - Pausing temporarily — this permanently cancels the job (there is no resume)
 
         Args:
             params (CrawlerJobRefParams): job_id (required) — the id returned by

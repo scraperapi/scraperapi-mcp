@@ -104,6 +104,13 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
         fields, example results, and any error. Poll this after 'ai_parser_create'
         (or after a field-editing 'ai_parser_update') until status is 'FINISHED'.
 
+        When to use:
+        - Polling a parser's status after create/update until it is 'FINISHED'
+        - Inspecting a parser's fields before parsing with it
+
+        When NOT to use:
+        - Extracting data from a page (use 'ai_parser_parse_url')
+
         Args:
             params (AiParserGetParams): parser_id (required) and optional version.
 
@@ -129,6 +136,14 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
         as structured JSON keyed by the parser's fields. The parser must already be
         'FINISHED' (see 'ai_parser_create' / 'ai_parser_get_details'). Costs 1 credit per call.
 
+        When to use:
+        - Extracting structured data from a page using a FINISHED parser
+        - Applying one parser across many similarly structured pages
+
+        When NOT to use:
+        - The parser isn't ready yet (create it, then poll 'ai_parser_get_details')
+        - A one-off fetch (use 'scrape') or a supported marketplace/SERP (use the SDE)
+
         Args:
             params (AiParseParams): parser_id and url are required; optional version.
 
@@ -153,6 +168,12 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
 
         Returns each parser's id, name, status, version, and generation time.
 
+        When to use:
+        - Discovering existing parsers and their ids/status before reusing one
+
+        When NOT to use:
+        - Getting one parser's full fields/details (use 'ai_parser_get_details')
+
         Returns:
             str: JSON array of parser summaries.
 
@@ -172,6 +193,12 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
         """Delete an AI parser.
 
         Permanently removes the parser (and all its versions) from your account.
+
+        When to use:
+        - Removing a parser you no longer need (e.g. to stay under plan limits)
+
+        When NOT to use:
+        - Changing a parser's fields (use 'ai_parser_update'); deletion is permanent
 
         Args:
             params (AiParserDeleteParams): parser_id (required).
@@ -197,6 +224,13 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
         Add, modify, rename, or remove fields. Adding or modifying fields triggers
         asynchronous regeneration (poll 'ai_parser_get_details' until 'FINISHED'); renaming
         or removing fields is applied immediately.
+
+        When to use:
+        - Adjusting an existing parser's fields (add/modify/rename/remove) rather
+          than recreating it
+
+        When NOT to use:
+        - Creating a brand-new parser (use 'ai_parser_create')
 
         Args:
             params (AiParserUpdateParams): parser_id (required) and optional version,
