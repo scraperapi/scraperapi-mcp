@@ -472,7 +472,7 @@ Returns: JSON with the job's page counts (done/failed/active).
 
 ### AI Parser
 
-Build a reusable parser from a few example URLs, then apply it to any similar page for structured extraction. Two-phase: `ai_parser_create` returns a parser id immediately and generation runs in the background — poll `ai_parser_get` until its `status` is `FINISHED`, then call `ai_parse`.
+Build a reusable parser from a few example URLs, then apply it to any similar page for structured extraction. Two-phase: `ai_parser_create` returns a parser id immediately and generation runs in the background — poll `ai_parser_get_details` until its `status` is `FINISHED`, then call `ai_parser_parse_url`.
 
 <details>
 <summary><strong>ai_parser_create</strong> — Create a reusable AI parser from example URLs</summary>
@@ -484,12 +484,12 @@ Build a reusable parser from a few example URLs, then apply it to any similar pa
 | `scraper_params` | object | ScraperAPI fetch options for the example pages: `render`, `country_code`, `premium`, `session_number`, `keep_headers`, `device_type`, `ultra_premium`, `follow_redirect`, `retry_404` | No |
 | `fields` | array | Pre-declared fields to extract: `[{ name, description, type?, selector? }]` (`type` is `string`/`number`/`array`). If omitted, fields are inferred | No |
 
-Returns: JSON with the new parser's `id` and `version`. Generation is asynchronous — poll `ai_parser_get` until `status` is `FINISHED`.
+Returns: JSON with the new parser's `id` and `version`. Generation is asynchronous — poll `ai_parser_get_details` until `status` is `FINISHED`.
 
 </details>
 
 <details>
-<summary><strong>ai_parser_get</strong> — Get a parser's details and generation status</summary>
+<summary><strong>ai_parser_get_details</strong> — Get a parser's details and generation status</summary>
 
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|
@@ -501,7 +501,7 @@ Returns: JSON with the parser's `status` (`GENERATING`/`FINISHED`/`FAILED`), fie
 </details>
 
 <details>
-<summary><strong>ai_parse</strong> — Parse a URL with an existing parser</summary>
+<summary><strong>ai_parser_parse_url</strong> — Parse a URL with an existing parser</summary>
 
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|

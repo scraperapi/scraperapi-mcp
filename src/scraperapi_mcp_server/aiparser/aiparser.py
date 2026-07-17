@@ -4,8 +4,8 @@ The AI parser (``AIPARSER_URL``) works in two phases:
 
 1. **Create** a reusable parser from a few example URLs (``ai_parser_create``).
    Generation is asynchronous — it returns a parser id immediately and you poll
-   ``ai_parser_get`` until its status is ``FINISHED``.
-2. **Parse** any URL with that parser (``ai_parse``) to get structured JSON.
+   ``ai_parser_get_details`` until its status is ``FINISHED``.
+2. **Parse** any URL with that parser (``ai_parser_parse_url``) to get structured JSON.
 
 Auth: the ``api_key`` goes in the JSON body for create/update (POST/PATCH) and
 in the query string for get/parse/list/delete (GET/DELETE), matching the service.
@@ -67,8 +67,8 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
 
         Generates a parser that extracts structured data from pages sharing a
         layout. Generation is ASYNCHRONOUS: this returns a parser id and version
-        immediately (e.g. {"id": "...", "version": 0}); poll 'ai_parser_get' until
-        its status is 'FINISHED' before calling 'ai_parse'.
+        immediately (e.g. {"id": "...", "version": 0}); poll 'ai_parser_get_details' until
+        its status is 'FINISHED' before calling 'ai_parser_parse_url'.
 
         When to use:
         - You want repeatable structured extraction across many similar pages
@@ -96,8 +96,8 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
             http.post(f"{settings.AIPARSER_URL}/parsers", json=body)
         )
 
-    @mcp.tool(name="ai_parser_get", annotations=_READ_ANNOTATIONS)
-    async def ai_parser_get(params: AiParserGetParams) -> str:
+    @mcp.tool(name="ai_parser_get_details", annotations=_READ_ANNOTATIONS)
+    async def ai_parser_get_details(params: AiParserGetParams) -> str:
         """Get an AI parser's details and generation status.
 
         Returns the parser's status ('GENERATING', 'FINISHED', or 'FAILED'), its
@@ -121,13 +121,13 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
             )
         )
 
-    @mcp.tool(name="ai_parse", annotations=_READ_ANNOTATIONS)
-    async def ai_parse(params: AiParseParams) -> str:
+    @mcp.tool(name="ai_parser_parse_url", annotations=_READ_ANNOTATIONS)
+    async def ai_parser_parse_url(params: AiParseParams) -> str:
         """Parse a URL with an existing AI parser and return structured data.
 
         Scrapes the given URL and applies the parser, returning the extracted data
         as structured JSON keyed by the parser's fields. The parser must already be
-        'FINISHED' (see 'ai_parser_create' / 'ai_parser_get'). Costs 1 credit per call.
+        'FINISHED' (see 'ai_parser_create' / 'ai_parser_get_details'). Costs 1 credit per call.
 
         Args:
             params (AiParseParams): parser_id and url are required; optional version.
@@ -195,7 +195,7 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
         """Edit an AI parser's fields, creating a new version.
 
         Add, modify, rename, or remove fields. Adding or modifying fields triggers
-        asynchronous regeneration (poll 'ai_parser_get' until 'FINISHED'); renaming
+        asynchronous regeneration (poll 'ai_parser_get_details' until 'FINISHED'); renaming
         or removing fields is applied immediately.
 
         Args:

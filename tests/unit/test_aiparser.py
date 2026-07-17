@@ -90,7 +90,7 @@ class TestAiParserDispatch:
         from scraperapi_mcp_server.server import mcp
 
         await mcp.call_tool(
-            "ai_parse",
+            "ai_parser_parse_url",
             {"params": {"parser_id": "abc", "url": "https://example.com/p/2"}},
         )
 
@@ -112,7 +112,7 @@ class TestAiParserDispatch:
         from scraperapi_mcp_server.server import mcp
 
         await mcp.call_tool(
-            "ai_parser_get", {"params": {"parser_id": "abc", "version": 3}}
+            "ai_parser_get_details", {"params": {"parser_id": "abc", "version": 3}}
         )
 
         assert mock_get.call_args.args[0].endswith("/parsers/abc/3")
