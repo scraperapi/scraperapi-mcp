@@ -20,7 +20,7 @@ This is the self-hosted (local) server. A [hosted (remote) version](https://docs
 - [Features](#features)
 - [Architecture](#architecture)
 - [Installation](#installation)
-- [API Reference](#api-reference)
+- [Available tools](#available-tools)
 - [Configuration](#configuration)
   - [Settings](#settings)
   - [Client Setup](#client-setup)
@@ -76,7 +76,7 @@ Add this to your client configuration file:
 }
 ```
 
-### Using Docker 
+### Using Docker
 
 Add this to your client configuration file:
 
@@ -110,8 +110,6 @@ Add this to your client configuration file:
 
 ### API
 
-Structured Data Endpoints (SDEs) return pre-parsed JSON (or CSV) instead of raw HTML. Every SDE tool also accepts `output_format` (`json` by default, or `csv`), `tld`, and `country_code`, shown in each tool's table.
-
 <details>
 <summary><strong>scrape</strong> — Scrape any web page or image, bypassing anti-bot protection</summary>
 
@@ -133,6 +131,8 @@ Returns: the scraped content as a string, or image data for image URLs.
 </details>
 
 ### SDEs
+
+Structured Data Endpoints (SDEs) return pre-parsed JSON (or CSV) instead of raw HTML. Every SDE tool also accepts `output_format` (`json` by default, or `csv`), `tld`, and `country_code`, shown in each tool's table.
 
 #### Google
 
@@ -546,7 +546,7 @@ No parameters. Returns a JSON array of parser summaries (id, name, status, versi
 ### Prompt templates
 
 - Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.
-- Can you scrape URL `<URL>` to extract `<SPECIFIC_DATA>`? If the request returns missing/incomplete`<SPECIFIC_DATA>`, set render=true to enable JS Rendering.
+- Can you scrape URL `<URL>` to extract `<SPECIFIC_DATA>`? If the request returns missing/incomplete `<SPECIFIC_DATA>`, set render=true to enable JS Rendering.
 
 ## Configuration
 
@@ -557,8 +557,6 @@ Configure the server through environment variables. Only `API_KEY` is required.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `API_KEY` | — | **Required.** Your ScraperAPI API key. |
-| `API_URL` | `https://api.scraperapi.com` | Base URL for the ScraperAPI API and structured-data endpoints.
-| `SCRAPER_SDK` | `mcp-server` | Client identifier sent to ScraperAPI on every request. |
 | `API_TIMEOUT_SECONDS` | `70` | Per-request timeout, in seconds. |
 | `RATE_LIMIT_MAX_CALLS` | `10` | Maximum tool calls allowed per rate-limit window. |
 | `RATE_LIMIT_WINDOW_SECONDS` | `60` | Length of the rate-limit window, in seconds. |
