@@ -1,5 +1,5 @@
 import pytest
-from scraperapi_mcp_server.server import scrape
+from scraperapi_mcp_server.scrape.scrape import scrape_tool
 from scraperapi_mcp_server.scrape.models import Scrape
 from scraperapi_mcp_server.scrape.models import ScrapeResult
 
@@ -11,7 +11,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_full_scrape_flow(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         mock_basic_scrape.return_value = ScrapeResult(
@@ -27,7 +27,7 @@ class TestIntegration:
             device_type="mobile",
         )
 
-        result = await scrape(params)
+        result = await scrape_tool(params)
 
         assert result == "<html><body>Integration test content</body></html>"
 
@@ -43,7 +43,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_error_propagation_through_layers(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         mock_basic_scrape.side_effect = Exception("Integration test error")
@@ -51,13 +51,13 @@ class TestIntegration:
         params = Scrape(url="https://example.com")
 
         with pytest.raises(Exception, match="Integration test error"):
-            await scrape(params)
+            await scrape_tool(params)
 
     @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_multiple_scrape_requests(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         mock_basic_scrape.side_effect = [
@@ -70,9 +70,9 @@ class TestIntegration:
         params2 = Scrape(url="https://example2.com", render=True)
         params3 = Scrape(url="https://example3.com", premium=True)
 
-        result1 = await scrape(params1)
-        result2 = await scrape(params2)
-        result3 = await scrape(params3)
+        result1 = await scrape_tool(params1)
+        result2 = await scrape_tool(params2)
+        result3 = await scrape_tool(params3)
 
         assert result1 == "Content from first request"
         assert result2 == "Content from second request"
