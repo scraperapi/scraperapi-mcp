@@ -434,7 +434,7 @@ The crawler is asynchronous: `crawler_job_start` returns a job id immediately, t
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|
 | `start_url` | string | The URL where crawling begins (depth 0) | Yes |
-| `url_regexp_include` | string | Regex to find URLs to crawl; must include a named group `(?<full_url>...)` and/or `(?<relative_url>...)` | Yes |
+| `url_regexp_include` | string | Regex selecting which links to follow. Use `.*` to crawl all links. Advanced: named groups `(?<full_url>...)` / `(?<relative_url>...)` target absolute vs relative URLs | Yes |
 | `max_depth` | integer | Maximum crawl depth (start URL is depth 0). Provide `max_depth` or `crawl_budget` | No* |
 | `crawl_budget` | integer | Maximum ScraperAPI credits the crawl may consume. Provide `max_depth` or `crawl_budget` | No* |
 | `url_regexp_exclude` | string | Regex for URLs to exclude from crawling | No |

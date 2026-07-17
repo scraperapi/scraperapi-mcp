@@ -25,15 +25,15 @@ class TestValidation:
         )
         assert p.max_depth == 2
 
-    def test_requires_named_group_in_regex(self):
-        with pytest.raises(ValidationError):
-            CrawlerJobStartParams(
-                start_url="https://example.com",
-                url_regexp_include=r"https://example\.com/.*",
-                max_depth=1,
-            )
+    def test_crawl_all_regex_accepted(self):
+        p = CrawlerJobStartParams(
+            start_url="https://example.com",
+            url_regexp_include=".*",
+            max_depth=1,
+        )
+        assert p.url_regexp_include == ".*"
 
-    def test_relative_url_named_group_ok(self):
+    def test_named_group_regex_still_accepted(self):
         p = CrawlerJobStartParams(
             start_url="https://example.com",
             url_regexp_include=r'(?<relative_url>/[^"]+)',

@@ -55,7 +55,7 @@ class CrawlerJobStartParams(BaseModel):
     url_regexp_include: Annotated[
         str,
         Field(
-            description="Regular expression used to find URLs to crawl on each page. Must include a named group '(?<full_url>...)' for absolute URLs and/or '(?<relative_url>...)' for relative URLs. Required.",
+            description="Regular expression selecting which links to follow on each crawled page. Use '.*' to crawl all links. Advanced: named groups '(?<full_url>...)' / '(?<relative_url>...)' can target absolute vs relative URLs. Required.",
         ),
     ]
     max_depth: Annotated[
@@ -122,14 +122,6 @@ class CrawlerJobStartParams(BaseModel):
         if self.max_depth is None and self.crawl_budget is None:
             raise ValueError(
                 "Provide either max_depth or crawl_budget to bound the crawl."
-            )
-        if (
-            "(?<full_url>" not in self.url_regexp_include
-            and "(?<relative_url>" not in self.url_regexp_include
-        ):
-            raise ValueError(
-                "url_regexp_include must contain a named group '(?<full_url>...)' "
-                "and/or '(?<relative_url>...)'."
             )
         return self
 
