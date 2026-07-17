@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 import logging
+from importlib.metadata import PackageNotFoundError, version
+
 from scraperapi_mcp_server.server import mcp
 
-__version__ = "0.2.0"
+try:
+    __version__ = version("scraperapi-mcp-server")
+except PackageNotFoundError:  # running from source without an install
+    __version__ = "0.0.0"
 
 
 def main():
