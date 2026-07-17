@@ -2,6 +2,8 @@
 
 The ScraperAPI MCP server enables LLM clients to retrieve and process web scraping requests using the ScraperAPI services.
 
+This is the self-hosted (local) server. A [hosted (remote) version](https://docs.scraperapi.com/integrations/llm-integrations/mcp-server/hosted-remote) is also available.
+
 <div align="center">
 
 [![pypi package](https://img.shields.io/pypi/v/scraperapi-mcp-server?color=%2334D058&label=pypi%20package)](https://pypi.org/project/scraperapi-mcp-server/)
@@ -20,10 +22,8 @@ The ScraperAPI MCP server enables LLM clients to retrieve and process web scrapi
 - [Installation](#installation)
 - [API Reference](#api-reference)
 - [Configuration](#configuration)
-  - [Claude Desktop App & Claude Code](#configure-claude-desktop-app--claude-code)
-  - [Cursor](#configure-cursor-editor)
-  - [Windsurf](#configure-windsurf-editor)
-  - [Cline](#configure-cline-vs-code-extension)
+  - [Settings](#settings)
+  - [Client Setup](#client-setup)
 - [Development](#development)
 
 ## Features
@@ -106,22 +106,442 @@ Add this to your client configuration file:
 >    which <YOUR_COMMAND>
 >    ```
 
-## API Reference
+## Available tools
 
-### Available Tools
+### API
 
-- `scrape`
-  - Scrape a URL from the internet using ScraperAPI
-  - Parameters:
-    - `url` (string, required): URL to scrape
-    - `render` (boolean, optional): Whether to render the page using JavaScript. Defaults to `False`. Set to `True` only if the page requires JavaScript rendering to display its content.
-    - `country_code` (string, optional): Activate country geotargeting (ISO 2-letter code)
-    - `premium` (boolean, optional): Activate premium residential and mobile IPs
-    - `ultra_premium` (boolean, optional): Activate advanced bypass mechanisms. Can not combine with `premium`
-    - `device_type` (string, optional): Set request to use `mobile` or `desktop` user agents
-    - `output_format` (string, optional): Allows you to instruct the API on what the response file type should be.
-    - `autoparse` (boolean, optional): Activate auto parsing for select websites. Defaults to `False`. Set to `True` only if you want the output format in `csv` or `json`.
-  - Returns: The scraped content as a string
+Structured Data Endpoints (SDEs) return pre-parsed JSON (or CSV) instead of raw HTML. Every SDE tool also accepts `output_format` (`json` by default, or `csv`), `tld`, and `country_code`, shown in each tool's table.
+
+<details>
+<summary><strong>scrape</strong> — Scrape any web page or image, bypassing anti-bot protection</summary>
+
+Retrieve the content of a web page, or download an image, from a URL.
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Target URL to scrape | Yes |
+| `render` | boolean | Enable JavaScript rendering for dynamic pages (default: `false`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+| `premium` | boolean | Use premium residential/mobile proxies (default: `false`) | No |
+| `ultra_premium` | boolean | Advanced anti-bot bypass; incompatible with `premium` (default: `false`) | No |
+| `device_type` | string | `mobile` or `desktop` user agent | No |
+| `output_format` | string | `markdown` (default), `text`, `csv`, or `json` | No |
+| `autoparse` | boolean | Auto-parse supported sites into structured data (default: `false`) | No |
+
+Returns: the scraped content as a string, or image data for image URLs.
+
+</details>
+
+### SDEs
+
+#### Google
+
+<details>
+<summary><strong>google_search</strong> — Parsed Google Search (SERP) results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query, as typed into Google | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code (e.g. `en`, `es`) | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `date_range_start` | string | Start of a custom date range, `MM/DD/YYYY` | No |
+| `date_range_end` | string | End of a custom date range, `MM/DD/YYYY` | No |
+| `time_period` | string | Recent window: `1H`, `1D`, `1W`, `1M`, or `1Y` | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `tbs` | string | Raw Google `tbs` filter parameter (advanced) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_news</strong> — Parsed Google News results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `date_range_start` | string | Start of a custom date range, `MM/DD/YYYY` | No |
+| `date_range_end` | string | End of a custom date range, `MM/DD/YYYY` | No |
+| `time_period` | string | Recent window: `1H`, `1D`, `1W`, `1M`, or `1Y` | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_jobs</strong> — Parsed Google Jobs listings</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_shopping</strong> — Parsed Google Shopping product results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query | Yes |
+| `num` | integer | Number of results to return on the page | No |
+| `start` | integer | Zero-based result offset for pagination | No |
+| `hl` | string | Interface/host language code | No |
+| `gl` | string | Country edition to search (2-letter code) | No |
+| `uule` | string | Google `uule` geolocation string (advanced) | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>google_maps_search</strong> — Parsed Google Maps place/business results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query (e.g. `coffee shops in Austin`) | Yes |
+| `latitude` | number | Latitude of the map center, in decimal degrees | Yes |
+| `longitude` | number | Longitude of the map center, in decimal degrees | Yes |
+| `zoom` | integer | Map zoom level (roughly 3=country, 10=city, 15=street) | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Top-level domain (e.g. `com`, `co.uk`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+#### Amazon
+
+<details>
+<summary><strong>amazon_product</strong> — Parsed Amazon product details by ASIN</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `asin` | string | 10-character Amazon product identifier (e.g. `B08N5WRWNW`) | Yes |
+| `language` | string | Language code for localized content (e.g. `en_US`) | No |
+| `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>amazon_search</strong> — Parsed Amazon product search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search query, as typed into Amazon | Yes |
+| `page` | integer | 1-based results page number | No |
+| `sort_by` | string | Sort order (e.g. `price-asc-rank`, `review-rank`) | No |
+| `department` | string | Restrict search to a department/category (e.g. `electronics`) | No |
+| `ref` | string | Amazon `ref` referral/context token (advanced) | No |
+| `language` | string | Language code for localized content | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>amazon_offers</strong> — Parsed seller offers for an Amazon product</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `asin` | string | 10-character Amazon product identifier | Yes |
+| `condition` | string | Comma-separated condition filters (e.g. `f_new,f_usedlikenew,f_usedverygood,f_usedgood,f_usedacceptable`) | No |
+| `f_new` | boolean | Include only New-condition offers | No |
+| `f_used_like_new` | boolean | Include Used - Like New offers | No |
+| `f_used_very_good` | boolean | Include Used - Very Good offers | No |
+| `f_used_good` | boolean | Include Used - Good offers | No |
+| `f_used_acceptable` | boolean | Include Used - Acceptable offers | No |
+| `language` | string | Language code for localized content | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Amazon TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+#### Walmart
+
+<details>
+<summary><strong>walmart_search</strong> — Parsed Walmart product search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Product search query, as typed into Walmart | Yes |
+| `page` | integer | 1-based results page number | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>walmart_product</strong> — Parsed Walmart product details by product ID</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `product_id` | string | Walmart product ID | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>walmart_category</strong> — Parsed products within a Walmart category</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `category` | string | Walmart category ID | Yes |
+| `page` | integer | 1-based results page number | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>walmart_review</strong> — Parsed customer reviews for a Walmart product</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `product_id` | string | Walmart product ID | Yes |
+| `page` | integer | 1-based results page number | No |
+| `sort` | string | Sort order (e.g. `helpful`, `recent`) | No |
+| `ratings` | string | Comma-separated star ratings to filter by (e.g. `4,5`) | No |
+| `verified_purchase` | boolean | Include only reviews with a "Verified Purchase" badge (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+#### eBay
+
+<details>
+<summary><strong>ebay_search</strong> — Parsed eBay product search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `query` | string | Search keywords | Yes |
+| `page` | integer | 1-based results page number | No |
+| `items_per_page` | integer | Number of items per page | No |
+| `seller_id` | string | Restrict results to a specific seller | No |
+| `condition` | string | Comma-separated: `new`, `used`, `open_box`, `refurbished`, `for_parts`, `not_working` | No |
+| `buying_format` | string | `buy_it_now`, `auction`, or `accepts_offers` | No |
+| `show_only` | string | Comma-separated: `returns_accepted`, `authorized_seller`, `completed_items`, `sold_items`, `sale_items`, `listed_as_lots`, `search_in_description`, `benefits_charity`, `authenticity_guarantee` | No |
+| `sort_by` | string | `best_match`, `ending_soonest`, `newly_listed`, `price_lowest`, `price_highest`, or `distance_nearest` | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | eBay TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>ebay_product</strong> — Parsed eBay listing details by item ID</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `product_id` | string | eBay item ID | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | eBay TLD (e.g. `com`, `co.uk`, `de`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+#### Redfin
+
+Every Redfin tool takes a full Redfin URL matching the tool (property, search, or agent page).
+
+<details>
+<summary><strong>redfin_for_sale</strong> — Parsed Redfin listing data for a home for sale</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin for-sale property URL | Yes |
+| `raw` | boolean | Return raw extracted JSON instead of parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>redfin_for_rent</strong> — Parsed Redfin listing data for a rental property</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin rental property URL | Yes |
+| `raw` | boolean | Return raw extracted JSON instead of parsed data (default: `false`) | No |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>redfin_search</strong> — Parsed Redfin search results</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin search-results URL (with filters) | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+<details>
+<summary><strong>redfin_agent</strong> — Parsed Redfin real-estate agent profile data</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `url` | string | Full Redfin agent profile URL | Yes |
+| `output_format` | string | `json` (default) or `csv` | No |
+| `tld` | string | Redfin TLD (`com`, `ca`) | No |
+| `country_code` | string | ISO 2-letter country code for geo-targeting | No |
+
+</details>
+
+### Crawler
+
+The crawler is asynchronous: `crawler_job_start` returns a job id immediately, then you poll `crawler_job_status` until the crawl finishes. Per-page results can also be pushed to a `callback_url` webhook.
+
+<details>
+<summary><strong>crawler_job_start</strong> — Start an async crawl job from a starting URL</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `start_url` | string | The URL where crawling begins (depth 0) | Yes |
+| `url_regexp_include` | string | Regex selecting which links to follow. Use `.*` to crawl all links. Advanced: named groups `(?<full_url>...)` / `(?<relative_url>...)` target absolute vs relative URLs | Yes |
+| `max_depth` | integer | Maximum crawl depth (start URL is depth 0). Provide `max_depth` or `crawl_budget` | No* |
+| `crawl_budget` | integer | Maximum ScraperAPI credits the crawl may consume. Provide `max_depth` or `crawl_budget` | No* |
+| `url_regexp_exclude` | string | Regex for URLs to exclude from crawling | No |
+| `api_params` | object | Per-scrape controls applied to each page (e.g. `render`, `country_code`, `premium`, `device_type`, `output_format`) | No |
+| `callback_url` | string | Webhook URL to receive per-page results and the final summary | No |
+| `additional_data` | object | Arbitrary metadata to attach to the job | No |
+| `schedule` | object | Recurring schedule: `{ name, interval (once/hourly/daily/weekly/monthly), cron }` | No |
+| `enabled` | boolean | For scheduled projects, whether the schedule is enabled (default: `true`) | No |
+
+\* Provide either `max_depth` or `crawl_budget`.
+
+Returns: JSON with the job id and initial status (e.g. `{"status": "initiated", "jobId": "..."}`).
+
+</details>
+
+<details>
+<summary><strong>crawler_job_status</strong> — Get the status of a crawl job</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `job_id` | string | The job id returned by `crawler_job_start` | Yes |
+
+Returns: JSON with the job's page counts (done/failed/active).
+
+</details>
+
+<details>
+<summary><strong>crawler_job_delete</strong> — Cancel and delete a crawl job</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `job_id` | string | The job id returned by `crawler_job_start` | Yes |
+
+</details>
+
+### AI Parser
+
+Build a reusable parser from a few example URLs, then apply it to any similar page for structured extraction. Two-phase: `ai_parser_create` returns a parser id immediately and generation runs in the background — poll `ai_parser_get_details` until its `status` is `FINISHED`, then call `ai_parser_parse_url`.
+
+<details>
+<summary><strong>ai_parser_create</strong> — Create a reusable AI parser from example URLs</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `name` | string | A name for the parser | Yes |
+| `urls` | array&lt;string&gt; | 1–3 example URLs of the same page type (same structure) | Yes |
+| `scraper_params` | object | ScraperAPI fetch options for the example pages: `render`, `country_code`, `premium`, `session_number`, `keep_headers`, `device_type`, `ultra_premium`, `follow_redirect`, `retry_404` | No |
+| `fields` | array | Pre-declared fields to extract: `[{ name, description, type?, selector? }]` (`type` is `string`/`number`/`array`). If omitted, fields are inferred | No |
+
+Returns: JSON with the new parser's `id` and `version`. Generation is asynchronous — poll `ai_parser_get_details` until `status` is `FINISHED`.
+
+</details>
+
+<details>
+<summary><strong>ai_parser_get_details</strong> — Get a parser's details and generation status</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id returned by `ai_parser_create` | Yes |
+| `version` | integer | Specific parser version (default: latest) | No |
+
+Returns: JSON with the parser's `status` (`GENERATING`/`FINISHED`/`FAILED`), fields, and example results.
+
+</details>
+
+<details>
+<summary><strong>ai_parser_parse_url</strong> — Parse a URL with an existing parser</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id to run | Yes |
+| `url` | string | The URL to scrape and parse | Yes |
+| `version` | integer | Specific parser version (default: latest) | No |
+
+Returns: JSON `{"parser": ..., "version": ..., "result": {...}}`. Costs 1 credit per call.
+
+</details>
+
+<details>
+<summary><strong>ai_parser_list</strong> — List the parsers on your account</summary>
+
+No parameters. Returns a JSON array of parser summaries (id, name, status, version, generation time).
+
+</details>
+
+<details>
+<summary><strong>ai_parser_delete</strong> — Delete a parser</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id to delete | Yes |
+
+</details>
+
+<details>
+<summary><strong>ai_parser_update</strong> — Edit a parser's fields (creates a new version)</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id to update | Yes |
+| `version` | integer | Version to base the update on (default: latest) | No |
+| `add_fields` | array | Fields to add: `[{ name, description, type?, selector? }]` (triggers async regeneration) | No |
+| `modify_fields` | array | Fields to modify (triggers async regeneration) | No |
+| `rename_fields` | array | Renames: `[{ name, new_name }]` (applied immediately) | No |
+| `remove_fields` | array&lt;string&gt; | Field names to remove (applied immediately) | No |
+
+</details>
 
 ### Prompt templates
 
@@ -132,9 +552,24 @@ Add this to your client configuration file:
 
 ### Settings
 
-- `API_KEY`: Your ScraperAPI API key.
+Configure the server through environment variables. Only `API_KEY` is required.
 
-### Configure Claude Desktop App & Claude Code
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `API_KEY` | — | **Required.** Your ScraperAPI API key. |
+| `API_URL` | `https://api.scraperapi.com` | Base URL for the ScraperAPI API and structured-data endpoints.
+| `SCRAPER_SDK` | `mcp-server` | Client identifier sent to ScraperAPI on every request. |
+| `API_TIMEOUT_SECONDS` | `70` | Per-request timeout, in seconds. |
+| `RATE_LIMIT_MAX_CALLS` | `10` | Maximum tool calls allowed per rate-limit window. |
+| `RATE_LIMIT_WINDOW_SECONDS` | `60` | Length of the rate-limit window, in seconds. |
+| `IMAGE_SIZE_LIMIT_BYTES` | `700000` | Maximum size of an image the `scrape` tool returns inline. |
+
+### Client Setup
+
+Use [the JSON configuration file](#installation) from the Installation section. Below are steps for common clients.
+
+<details>
+<summary><strong>Claude Desktop & Claude Code</strong></summary>
 
 **Claude Desktop:**
 1. Open Claude Desktop and click the settings icon
@@ -147,18 +582,24 @@ Add this to your client configuration file:
    claude mcp add scraperapi -e API_KEY=<YOUR_SCRAPERAPI_API_KEY> -- python -m scraperapi_mcp_server
    ```
 
-### Configure Cursor Editor
+</details>
+
+<details>
+<summary><strong>Cursor Editor</strong></summary>
 
 1. Open Cursor
 2. Access the Settings Menu
-3. Open Cursor Settings 
+3. Open Cursor Settings
 4. Go to Tools & Integrations section
 5. Click '+ Add MCP Server'
 6. Choose Manual and paste [the JSON configuration file](#installation)
 
 More [here](https://cursor.com/docs/context/mcp#servers)
 
-### Configure Windsurf Editor
+</details>
+
+<details>
+<summary><strong>Windsurf Editor</strong></summary>
 
 1. Open Windsurf
 2. Access the Settings Menu
@@ -169,7 +610,10 @@ More [here](https://cursor.com/docs/context/mcp#servers)
 
 More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
 
-### Configure Cline (VS code extension)
+</details>
+
+<details>
+<summary><strong>Cline (VS Code extension)</strong></summary>
 
 1. Open VS Code and click the Cline icon in the activity bar to open the Cline panel
 2. Click the MCP Servers icon in the top navigation bar of the Cline pane
@@ -178,6 +622,8 @@ More [here](https://docs.windsurf.com/windsurf/cascade/mcp#adding-a-new-mcp)
 5. Paste [the JSON configuration file](#installation)
 
 More [here](https://docs.cline.bot/mcp/adding-and-configuring-servers#editing-configuration-files)
+
+</details>
 
 ## Development
 

@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     API_KEY: str = ""
     API_URL: str = "https://api.scraperapi.com"
+    CRAWLER_URL: str = "https://crawler.scraperapi.com"
+    AIPARSER_URL: str = "https://aiparser.scraperapi.com"
+    SCRAPER_SDK: str = "mcp-server"
     API_TIMEOUT_SECONDS: int = 70
     RATE_LIMIT_MAX_CALLS: int = 10
     RATE_LIMIT_WINDOW_SECONDS: float = 60.0
