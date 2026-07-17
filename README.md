@@ -480,7 +480,7 @@ Build a reusable parser from a few example URLs, then apply it to any similar pa
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|
 | `name` | string | A name for the parser | Yes |
-| `urls` | array&lt;string&gt; | 1–10 example URLs sharing the same page structure | Yes |
+| `urls` | array&lt;string&gt; | 1–3 example URLs of the same page type (same structure) | Yes |
 | `scraper_params` | object | ScraperAPI fetch options for the example pages: `render`, `country_code`, `premium`, `session_number`, `keep_headers`, `device_type`, `ultra_premium`, `follow_redirect`, `retry_404` | No |
 | `fields` | array | Pre-declared fields to extract: `[{ name, description, type?, selector? }]` (`type` is `string`/`number`/`array`). If omitted, fields are inferred | No |
 

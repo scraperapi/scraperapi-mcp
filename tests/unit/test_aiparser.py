@@ -26,10 +26,11 @@ class TestCreateParams:
         with pytest.raises(ValidationError):
             AiParserCreateParams(name="x", urls=[])
 
-    def test_rejects_more_than_ten_urls(self):
+    def test_rejects_more_than_three_urls(self):
+        # Docs cap example URLs at 1-3.
         with pytest.raises(ValidationError):
             AiParserCreateParams(
-                name="x", urls=[f"https://e.com/{i}" for i in range(11)]
+                name="x", urls=[f"https://e.com/{i}" for i in range(4)]
             )
 
     def test_invalid_country_code_rejected(self):

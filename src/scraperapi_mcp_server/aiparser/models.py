@@ -104,8 +104,8 @@ class AiParserCreateParams(BaseModel):
         list[str],
         Field(
             min_length=1,
-            max_length=10,
-            description="1 to 10 example URLs the parser learns from (should share the same page structure). Required.",
+            max_length=3,
+            description="1 to 3 example URLs of the same page type that the parser learns from (they should share the same structure). Required.",
         ),
     ]
     scraper_params: Annotated[

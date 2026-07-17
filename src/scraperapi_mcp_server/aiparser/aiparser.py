@@ -73,13 +73,13 @@ def register_aiparser_tools(mcp: FastMCP) -> None:
         When to use:
         - You want repeatable structured extraction across many similar pages
           (e.g. product pages of one site) and there's no dedicated SDE for it
-        - You can provide 1–10 example URLs of the same page type
+        - You can provide 1–3 example URLs of the same page type
 
         When NOT to use:
         - A one-off fetch (use 'scrape') or a supported marketplace/SERP (use the SDE)
 
         Args:
-            params (AiParserCreateParams): name and urls (1–10) are required;
+            params (AiParserCreateParams): name and urls (1–3) are required;
                 optional scraper_params (fetch options) and fields (pre-declared
                 output schema).
 
