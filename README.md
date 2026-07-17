@@ -470,6 +470,79 @@ Returns: JSON with the job's page counts (done/failed/active).
 
 </details>
 
+### AI Parser
+
+Build a reusable parser from a few example URLs, then apply it to any similar page for structured extraction. Two-phase: `ai_parser_create` returns a parser id immediately and generation runs in the background — poll `ai_parser_get` until its `status` is `FINISHED`, then call `ai_parse`.
+
+<details>
+<summary><strong>ai_parser_create</strong> — Create a reusable AI parser from example URLs</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `name` | string | A name for the parser | Yes |
+| `urls` | array&lt;string&gt; | 1–10 example URLs sharing the same page structure | Yes |
+| `scraper_params` | object | ScraperAPI fetch options for the example pages: `render`, `country_code`, `premium`, `session_number`, `keep_headers`, `device_type`, `ultra_premium`, `follow_redirect`, `retry_404` | No |
+| `fields` | array | Pre-declared fields to extract: `[{ name, description, type?, selector? }]` (`type` is `string`/`number`/`array`). If omitted, fields are inferred | No |
+
+Returns: JSON with the new parser's `id` and `version`. Generation is asynchronous — poll `ai_parser_get` until `status` is `FINISHED`.
+
+</details>
+
+<details>
+<summary><strong>ai_parser_get</strong> — Get a parser's details and generation status</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id returned by `ai_parser_create` | Yes |
+| `version` | integer | Specific parser version (default: latest) | No |
+
+Returns: JSON with the parser's `status` (`GENERATING`/`FINISHED`/`FAILED`), fields, and example results.
+
+</details>
+
+<details>
+<summary><strong>ai_parse</strong> — Parse a URL with an existing parser</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id to run | Yes |
+| `url` | string | The URL to scrape and parse | Yes |
+| `version` | integer | Specific parser version (default: latest) | No |
+
+Returns: JSON `{"parser": ..., "version": ..., "result": {...}}`. Costs 1 credit per call.
+
+</details>
+
+<details>
+<summary><strong>ai_parser_list</strong> — List the parsers on your account</summary>
+
+No parameters. Returns a JSON array of parser summaries (id, name, status, version, generation time).
+
+</details>
+
+<details>
+<summary><strong>ai_parser_delete</strong> — Delete a parser</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id to delete | Yes |
+
+</details>
+
+<details>
+<summary><strong>ai_parser_update</strong> — Edit a parser's fields (creates a new version)</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `parser_id` | string | The parser id to update | Yes |
+| `version` | integer | Version to base the update on (default: latest) | No |
+| `add_fields` | array | Fields to add: `[{ name, description, type?, selector? }]` (triggers async regeneration) | No |
+| `modify_fields` | array | Fields to modify (triggers async regeneration) | No |
+| `rename_fields` | array | Renames: `[{ name, new_name }]` (applied immediately) | No |
+| `remove_fields` | array&lt;string&gt; | Field names to remove (applied immediately) | No |
+
+</details>
+
 ### Prompt templates
 
 - Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.

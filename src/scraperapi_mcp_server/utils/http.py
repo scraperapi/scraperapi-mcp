@@ -92,6 +92,17 @@ async def post(
     return await request("POST", url, params=params, json=json, timeout=timeout)
 
 
+async def patch(
+    url: str,
+    *,
+    json: Optional[dict[str, Any]] = None,
+    params: Optional[dict[str, Any]] = None,
+    timeout: Optional[float] = None,
+) -> httpx.Response:
+    """PATCH ``url`` with a JSON body."""
+    return await request("PATCH", url, params=params, json=json, timeout=timeout)
+
+
 async def delete(
     url: str,
     *,

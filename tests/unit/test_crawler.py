@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from scraperapi_mcp_server.crawler import (
+from scraperapi_mcp_server.crawler.models import (
     CrawlerJobStartParams,
     CrawlInterval,
     CrawlSchedule,
@@ -93,7 +93,7 @@ class TestCrawlerToolDispatch:
         mock_resp = mocker.Mock()
         mock_resp.text = '{"status": "initiated", "jobId": "abc"}'
         mock_post = mocker.patch(
-            "scraperapi_mcp_server.crawler.http.post",
+            "scraperapi_mcp_server.crawler.crawler.http.post",
             new_callable=mocker.AsyncMock,
             return_value=mock_resp,
         )
@@ -127,7 +127,7 @@ class TestCrawlerToolDispatch:
         mock_resp = mocker.Mock()
         mock_resp.text = '{"done": 0}'
         mock_get = mocker.patch(
-            "scraperapi_mcp_server.crawler.http.get",
+            "scraperapi_mcp_server.crawler.crawler.http.get",
             new_callable=mocker.AsyncMock,
             return_value=mock_resp,
         )
@@ -143,7 +143,7 @@ class TestCrawlerToolDispatch:
         mock_resp = mocker.Mock()
         mock_resp.text = '{"status": "OK"}'
         mock_delete = mocker.patch(
-            "scraperapi_mcp_server.crawler.http.delete",
+            "scraperapi_mcp_server.crawler.crawler.http.delete",
             new_callable=mocker.AsyncMock,
             return_value=mock_resp,
         )

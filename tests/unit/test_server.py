@@ -1,9 +1,9 @@
 import pytest
 from mcp.server.fastmcp import Image
 from mcp.server.fastmcp.exceptions import ToolError
-from scraperapi_mcp_server.server import mcp, scrape
-from scraperapi_mcp_server.scrape.models import Scrape
-from scraperapi_mcp_server.scrape.models import ScrapeError, ScrapeResult
+from scraperapi_mcp_server.server import mcp
+from scraperapi_mcp_server.scrape.scrape import scrape_tool
+from scraperapi_mcp_server.scrape.models import Scrape, ScrapeError, ScrapeResult
 
 
 class TestMCPServer:
@@ -15,7 +15,7 @@ class TestMCPServer:
     @pytest.mark.asyncio
     async def test_scrape_tool_success(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         params = Scrape(url="https://example.com")
@@ -23,7 +23,7 @@ class TestMCPServer:
             text="<html><body>Test content</body></html>"
         )
 
-        result = await scrape(params)
+        result = await scrape_tool(params)
 
         assert result == "<html><body>Test content</body></html>"
         mock_basic_scrape.assert_called_once()
@@ -31,7 +31,7 @@ class TestMCPServer:
     @pytest.mark.asyncio
     async def test_scrape_tool_returns_image(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         params = Scrape(url="https://example.com/photo.png")
@@ -40,7 +40,7 @@ class TestMCPServer:
             image_data=fake_image_bytes, mime_type="image/png"
         )
 
-        result = await scrape(params)
+        result = await scrape_tool(params)
 
         assert isinstance(result, Image)
         mock_basic_scrape.assert_called_once()
@@ -48,7 +48,7 @@ class TestMCPServer:
     @pytest.mark.asyncio
     async def test_scrape_tool_with_all_params(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         params = Scrape(
@@ -62,7 +62,7 @@ class TestMCPServer:
 
         mock_basic_scrape.return_value = ScrapeResult(text="Scraped content")
 
-        result = await scrape(params)
+        result = await scrape_tool(params)
 
         assert result == "Scraped content"
         mock_basic_scrape.assert_called_once()
@@ -70,7 +70,7 @@ class TestMCPServer:
     @pytest.mark.asyncio
     async def test_scrape_error_raises_tool_error(self, mocker):
         mock_basic_scrape = mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         params = Scrape(url="https://example.com")
@@ -79,22 +79,19 @@ class TestMCPServer:
         )
 
         with pytest.raises(ToolError, match="HTTP error 403"):
-            await scrape(params)
+            await scrape_tool(params)
 
     @pytest.mark.asyncio
     async def test_rate_limit_raises_tool_error(self, mocker):
         mocker.patch(
-            "scraperapi_mcp_server.server.basic_scrape",
+            "scraperapi_mcp_server.scrape.scrape.basic_scrape",
             new_callable=mocker.AsyncMock,
         )
         mocker.patch(
-            "scraperapi_mcp_server.server._rate_limiter.acquire",
-            side_effect=__import__(
-                "scraperapi_mcp_server.utils.rate_limiter",
-                fromlist=["RateLimitExceededError"],
-            ).RateLimitExceededError("Rate limit exceeded"),
+            "scraperapi_mcp_server.scrape.scrape.require_ready",
+            side_effect=ToolError("Rate limit exceeded"),
         )
         params = Scrape(url="https://example.com")
 
         with pytest.raises(ToolError, match="Rate limit exceeded"):
-            await scrape(params)
+            await scrape_tool(params)
