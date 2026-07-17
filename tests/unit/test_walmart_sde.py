@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from scraperapi_mcp_server.sdes.walmart import (
     WalmartCategoryParams,
@@ -45,7 +46,7 @@ class TestWalmartParams:
         assert "page" not in WalmartProductParams.model_fields
 
     def test_page_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             WalmartSearchParams(query="x", page=0)
 
 

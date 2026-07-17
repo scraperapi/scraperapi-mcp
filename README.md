@@ -424,6 +424,52 @@ Every Redfin tool takes a full Redfin URL matching the tool (property, search, o
 
 </details>
 
+### Crawler
+
+The crawler is asynchronous: `crawler_job_start` returns a job id immediately, then you poll `crawler_job_status` until the crawl finishes. Per-page results can also be pushed to a `callback_url` webhook.
+
+<details>
+<summary><strong>crawler_job_start</strong> — Start an async crawl job from a starting URL</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `start_url` | string | The URL where crawling begins (depth 0) | Yes |
+| `url_regexp_include` | string | Regex to find URLs to crawl; must include a named group `(?<full_url>...)` and/or `(?<relative_url>...)` | Yes |
+| `max_depth` | integer | Maximum crawl depth (start URL is depth 0). Provide `max_depth` or `crawl_budget` | No* |
+| `crawl_budget` | integer | Maximum ScraperAPI credits the crawl may consume. Provide `max_depth` or `crawl_budget` | No* |
+| `url_regexp_exclude` | string | Regex for URLs to exclude from crawling | No |
+| `api_params` | object | Per-scrape controls applied to each page (e.g. `render`, `country_code`, `premium`, `device_type`, `output_format`) | No |
+| `callback_url` | string | Webhook URL to receive per-page results and the final summary | No |
+| `additional_data` | object | Arbitrary metadata to attach to the job | No |
+| `schedule` | object | Recurring schedule: `{ name, interval (once/hourly/daily/weekly/monthly), cron }` | No |
+| `enabled` | boolean | For scheduled projects, whether the schedule is enabled (default: `true`) | No |
+
+\* Provide either `max_depth` or `crawl_budget`.
+
+Returns: JSON with the job id and initial status (e.g. `{"status": "initiated", "jobId": "..."}`).
+
+</details>
+
+<details>
+<summary><strong>crawler_job_status</strong> — Get the status of a crawl job</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `job_id` | string | The job id returned by `crawler_job_start` | Yes |
+
+Returns: JSON with the job's page counts (done/failed/active).
+
+</details>
+
+<details>
+<summary><strong>crawler_job_delete</strong> — Cancel and delete a crawl job</summary>
+
+| Parameter | Type | Description | Required |
+|-----------|------|-------------|----------|
+| `job_id` | string | The job id returned by `crawler_job_start` | Yes |
+
+</details>
+
 ### Prompt templates
 
 - Please scrape this URL `<URL>`. If you receive a 500 server error identify the website's geo-targeting and add the corresponding country_code to overcome geo-restrictions. If errors continues, upgrade the request to use premium proxies by adding premium=true. For persistent failures, activate ultra_premium=true to use enhanced anti-blocking measures.
@@ -438,7 +484,7 @@ Configure the server through environment variables. Only `API_KEY` is required.
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `API_KEY` | — | **Required.** Your ScraperAPI API key. |
-| `API_URL` | `https://api.scraperapi.com` | Base URL for the ScraperAPI API and structured-data endpoints. Override to target staging. |
+| `API_URL` | `https://api.scraperapi.com` | Base URL for the ScraperAPI API and structured-data endpoints.
 | `SCRAPER_SDK` | `mcp-server` | Client identifier sent to ScraperAPI on every request. |
 | `API_TIMEOUT_SECONDS` | `70` | Per-request timeout, in seconds. |
 | `RATE_LIMIT_MAX_CALLS` | `10` | Maximum tool calls allowed per rate-limit window. |

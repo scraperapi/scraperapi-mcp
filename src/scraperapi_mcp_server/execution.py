@@ -1,5 +1,8 @@
 """Shared tool-execution plumbing for all ScraperAPI MCP tools."""
 
+from typing import Awaitable
+
+import httpx
 from mcp.server.fastmcp.exceptions import ToolError
 
 from scraperapi_mcp_server.config import ApiKeyEnvVarNotSetError, settings
@@ -49,5 +52,27 @@ async def run_sde(path: str, params: BaseSdeParams) -> str:
     require_ready()
     try:
         return await fetch_sde(path, params)
+    except ScraperAPIError as e:
+        raise ToolError(str(e)) from e
+
+
+async def run_request(response: Awaitable[httpx.Response]) -> str:
+    """Run a raw HTTP tool call end to end.
+
+    For tools that assemble their own request (e.g. the crawler, which POSTs a
+    JSON body to a different host). Applies the shared guard rails, awaits the
+    already-constructed request, and converts any :class:`ScraperAPIError` into a
+    :class:`ToolError`.
+
+    Args:
+        response: An un-awaited ``http.get/post/delete(...)`` coroutine.
+
+    Returns:
+        The response body as text.
+    """
+    require_ready()
+    try:
+        result = await response
+        return result.text
     except ScraperAPIError as e:
         raise ToolError(str(e)) from e

@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from scraperapi_mcp_server.sdes.redfin import (
     RedfinAgentParams,
@@ -28,7 +29,7 @@ class TestRedfinParams:
         assert "raw" in RedfinForRentParams.model_fields
 
     def test_url_required(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             RedfinForSaleParams()
 
 

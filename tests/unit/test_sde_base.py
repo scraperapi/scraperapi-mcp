@@ -1,7 +1,7 @@
 from typing import Annotated, Optional
 
 import pytest
-from pydantic import Field
+from pydantic import Field, ValidationError
 
 from scraperapi_mcp_server.sdes.base import (
     BaseSdeParams,
@@ -45,7 +45,7 @@ class TestQueryParams:
         assert result["country_code"] == "gb"
 
     def test_extra_fields_forbidden(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             _ExampleParams(query="x", bogus="y")
 
 

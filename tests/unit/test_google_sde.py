@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from scraperapi_mcp_server.sdes.base import SdeOutputFormat
 from scraperapi_mcp_server.sdes.google import (
@@ -49,11 +50,11 @@ class TestGoogleQueryParams:
         assert "num" not in GoogleMapsSearchParams.model_fields
 
     def test_num_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             GoogleSearchParams(query="x", num=0)
 
     def test_extra_field_forbidden(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             GoogleSearchParams(query="x", bogus="y")
 
 

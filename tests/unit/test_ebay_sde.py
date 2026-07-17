@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from scraperapi_mcp_server.sdes.ebay import EbayProductParams, EbaySearchParams
 
@@ -34,7 +35,7 @@ class TestEbayParams:
         assert params.query_params()["product_id"] == "123456789012"
 
     def test_page_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             EbaySearchParams(query="x", page=0)
 
 

@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from scraperapi_mcp_server.sdes.amazon import (
     AmazonOffersParams,
@@ -15,7 +16,7 @@ class TestAmazonProductParams:
         assert params.query_params() == {"asin": VALID_ASIN, "output_format": "json"}
 
     def test_invalid_asin_rejected(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             AmazonProductParams(asin="too-short")
 
     def test_include_html_serialized(self):
@@ -40,7 +41,7 @@ class TestAmazonSearchParams:
         assert result["page"] == 2
 
     def test_page_must_be_positive(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             AmazonSearchParams(query="x", page=0)
 
 
