@@ -155,17 +155,15 @@ class GoogleShoppingParams(_GoogleSerpParams):
 
 class GoogleMapsSearchParams(_GoogleQueryParams):
     latitude: Annotated[
-        Optional[float],
+        float,
         Field(
-            default=None,
-            description="Latitude of the map center to search around, in decimal degrees (e.g. 40.7128). Pair with longitude.",
+            description="Latitude of the map center to search around, in decimal degrees (e.g. 40.7128). Required by the Google Maps endpoint.",
         ),
     ]
     longitude: Annotated[
-        Optional[float],
+        float,
         Field(
-            default=None,
-            description="Longitude of the map center to search around, in decimal degrees (e.g. -74.0060). Pair with latitude.",
+            description="Longitude of the map center to search around, in decimal degrees (e.g. -74.0060). Required by the Google Maps endpoint.",
         ),
     ]
     zoom: Annotated[
@@ -322,8 +320,8 @@ def register_google_tools(mcp: FastMCP) -> None:
         - Driving directions or routing (not provided by this endpoint)
 
         Args:
-            params (GoogleMapsSearchParams): query (required) plus optional
-                latitude, longitude, zoom, country_code, tld, output_format, and
+            params (GoogleMapsSearchParams): query, latitude, and longitude are
+                required; optional zoom, country_code, tld, output_format, and
                 include_html.
 
         Returns:

@@ -58,19 +58,38 @@ class TestGoogleQueryParams:
             GoogleSearchParams(query="x", bogus="y")
 
 
+class TestGoogleMapsRequiresCoordinates:
+    def test_query_only_is_rejected(self):
+        with pytest.raises(ValidationError):
+            GoogleMapsSearchParams(query="coffee shops in Austin")
+
+    def test_coordinates_make_it_valid(self):
+        params = GoogleMapsSearchParams(
+            query="coffee", latitude=30.27, longitude=-97.74
+        )
+        assert params.latitude == 30.27
+        assert params.longitude == -97.74
+
+
 class TestGoogleToolDispatch:
     @pytest.mark.parametrize(
-        "tool_name,expected_path",
+        "tool_name,arguments,expected_path",
         [
-            ("google_search", "/structured/google/search"),
-            ("google_news", "/structured/google/news"),
-            ("google_jobs", "/structured/google/jobs"),
-            ("google_shopping", "/structured/google/shopping"),
-            ("google_maps_search", "/structured/google/mapssearch"),
+            ("google_search", {"query": "laptops"}, "/structured/google/search"),
+            ("google_news", {"query": "laptops"}, "/structured/google/news"),
+            ("google_jobs", {"query": "laptops"}, "/structured/google/jobs"),
+            ("google_shopping", {"query": "laptops"}, "/structured/google/shopping"),
+            (
+                "google_maps_search",
+                {"query": "laptops", "latitude": 30.27, "longitude": -97.74},
+                "/structured/google/mapssearch",
+            ),
         ],
     )
     @pytest.mark.asyncio
-    async def test_tool_routes_to_endpoint(self, mocker, tool_name, expected_path):
+    async def test_tool_routes_to_endpoint(
+        self, mocker, tool_name, arguments, expected_path
+    ):
         mock_run = mocker.patch(
             "scraperapi_mcp_server.sdes.google.run_sde",
             new_callable=mocker.AsyncMock,
@@ -78,7 +97,7 @@ class TestGoogleToolDispatch:
         )
         from scraperapi_mcp_server.server import mcp
 
-        await mcp.call_tool(tool_name, {"params": {"query": "laptops"}})
+        await mcp.call_tool(tool_name, {"params": arguments})
 
         mock_run.assert_awaited_once()
         path_arg, params_arg = mock_run.call_args.args

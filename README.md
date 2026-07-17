@@ -219,8 +219,8 @@ Returns: the scraped content as a string, or image data for image URLs.
 | Parameter | Type | Description | Required |
 |-----------|------|-------------|----------|
 | `query` | string | Search query (e.g. `coffee shops in Austin`) | Yes |
-| `latitude` | number | Latitude of the map center, in decimal degrees | No |
-| `longitude` | number | Longitude of the map center, in decimal degrees | No |
+| `latitude` | number | Latitude of the map center, in decimal degrees | Yes |
+| `longitude` | number | Longitude of the map center, in decimal degrees | Yes |
 | `zoom` | integer | Map zoom level (roughly 3=country, 10=city, 15=street) | No |
 | `include_html` | boolean | Include raw HTML alongside parsed data (default: `false`) | No |
 | `output_format` | string | `json` (default) or `csv` | No |
