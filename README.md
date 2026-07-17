@@ -330,7 +330,7 @@ Returns: the scraped content as a string, or image data for image URLs.
 | `page` | integer | 1-based results page number | No |
 | `sort` | string | Sort order (e.g. `helpful`, `recent`) | No |
 | `ratings` | string | Comma-separated star ratings to filter by (e.g. `4,5`) | No |
-| `verified_purchase` | string | Pass `true` to include only verified-purchase reviews | No |
+| `verified_purchase` | boolean | Include only reviews with a "Verified Purchase" badge (default: `false`) | No |
 | `output_format` | string | `json` (default) or `csv` | No |
 | `tld` | string | Walmart TLD (e.g. `com`, `ca`, `com.mx`) | No |
 | `country_code` | string | ISO 2-letter country code for geo-targeting | No |

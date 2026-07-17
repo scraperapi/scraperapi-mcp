@@ -71,10 +71,10 @@ class WalmartReviewParams(BaseSdeParams):
         ),
     ]
     verified_purchase: Annotated[
-        Optional[str],
+        Optional[bool],
         Field(
             default=None,
-            description="Filter to verified-purchase reviews. Pass 'true' to include only verified purchases.",
+            description="When true, include only reviews with a Walmart 'Verified Purchase' badge. Default: false.",
         ),
     ]
 

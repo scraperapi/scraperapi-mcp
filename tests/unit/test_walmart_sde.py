@@ -34,7 +34,7 @@ class TestWalmartParams:
             page=1,
             sort="recent",
             ratings="4,5",
-            verified_purchase="true",
+            verified_purchase=True,
         )
         result = params.query_params()
         assert result["product_id"] == "5029197970"
